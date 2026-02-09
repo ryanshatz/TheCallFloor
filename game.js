@@ -475,6 +475,266 @@ function upgradeChairs() {
     addActivity('🪑', 'Ergonomic chairs installed!', 'success');
 }
 
+// ==================== BREAK ROOM ====================
+function spawnBreakRoom() {
+    const room = new THREE.Group();
+
+    // Couch
+    const couchBase = new THREE.Mesh(
+        new THREE.BoxGeometry(3, 0.6, 1.2),
+        new THREE.MeshStandardMaterial({ color: 0x6366f1, roughness: 0.8 })
+    );
+    couchBase.position.y = 0.3;
+    room.add(couchBase);
+
+    // Couch back
+    const couchBack = new THREE.Mesh(
+        new THREE.BoxGeometry(3, 1, 0.3),
+        new THREE.MeshStandardMaterial({ color: 0x4f46e5, roughness: 0.8 })
+    );
+    couchBack.position.set(0, 0.8, -0.45);
+    room.add(couchBack);
+
+    // Couch armrests
+    [-1.4, 1.4].forEach(x => {
+        const arm = new THREE.Mesh(
+            new THREE.BoxGeometry(0.3, 0.8, 1.2),
+            new THREE.MeshStandardMaterial({ color: 0x4f46e5, roughness: 0.8 })
+        );
+        arm.position.set(x, 0.5, 0);
+        room.add(arm);
+    });
+
+    // Cushions
+    [-0.7, 0, 0.7].forEach(x => {
+        const cushion = new THREE.Mesh(
+            new THREE.BoxGeometry(0.6, 0.15, 0.8),
+            new THREE.MeshStandardMaterial({ color: 0x818cf8, roughness: 0.9 })
+        );
+        cushion.position.set(x, 0.65, 0.05);
+        room.add(cushion);
+    });
+
+    // Coffee table
+    const table = new THREE.Mesh(
+        new THREE.BoxGeometry(1.5, 0.08, 0.8),
+        new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.4, metalness: 0.1 })
+    );
+    table.position.set(0, 0.45, 1.2);
+    room.add(table);
+
+    // Table legs
+    [[-0.6, 0.75], [0.6, 0.75], [-0.6, 1.65], [0.6, 1.65]].forEach(([x, z]) => {
+        const leg = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.04, 0.04, 0.45, 8),
+            new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.5 })
+        );
+        leg.position.set(x, 0.22, z);
+        room.add(leg);
+    });
+
+    // Magazine on table
+    const mag = new THREE.Mesh(
+        new THREE.BoxGeometry(0.3, 0.02, 0.4),
+        new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.6 })
+    );
+    mag.position.set(0.2, 0.5, 1.2);
+    mag.rotation.y = 0.3;
+    room.add(mag);
+
+    // Small plant
+    const pot = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.15, 0.12, 0.25, 12),
+        new THREE.MeshStandardMaterial({ color: 0x92400e })
+    );
+    pot.position.set(-0.4, 0.55, 1.2);
+    room.add(pot);
+
+    const leaves = new THREE.Mesh(
+        new THREE.SphereGeometry(0.2, 8, 8),
+        new THREE.MeshStandardMaterial({ color: 0x22c55e })
+    );
+    leaves.position.set(-0.4, 0.82, 1.2);
+    room.add(leaves);
+
+    room.position.set(16, 0, -10);
+
+    // Bounce-in animation
+    room.scale.set(0, 0, 0);
+    scene.add(room);
+    const startTime = Date.now();
+    function animateIn() {
+        const elapsed = (Date.now() - startTime) / 600;
+        if (elapsed < 1) {
+            // Elastic ease out
+            const t = elapsed;
+            const s = 1 - Math.pow(1 - t, 3) * Math.cos(t * Math.PI * 2.5);
+            room.scale.set(s, s, s);
+            requestAnimationFrame(animateIn);
+        } else {
+            room.scale.set(1, 1, 1);
+        }
+    }
+    animateIn();
+
+    addActivity('🛋️', 'Break room installed! Agents recover faster.', 'success');
+}
+
+// ==================== SNACK BAR ====================
+function spawnSnackBar() {
+    const bar = new THREE.Group();
+
+    // Counter/bar top
+    const counter = new THREE.Mesh(
+        new THREE.BoxGeometry(2.5, 1.1, 0.8),
+        new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.2 })
+    );
+    counter.position.y = 0.55;
+    bar.add(counter);
+
+    // Counter top surface
+    const surface = new THREE.Mesh(
+        new THREE.BoxGeometry(2.7, 0.08, 1.0),
+        new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.2, metalness: 0.3 })
+    );
+    surface.position.y = 1.15;
+    bar.add(surface);
+
+    // Glass sneeze guard
+    const guard = new THREE.Mesh(
+        new THREE.BoxGeometry(2.4, 0.8, 0.05),
+        new THREE.MeshPhysicalMaterial({ color: 0xadd8e6, transparent: true, opacity: 0.25, roughness: 0.05 })
+    );
+    guard.position.set(0, 1.55, -0.3);
+    bar.add(guard);
+
+    // Food items on counter
+    const foodColors = [0xef4444, 0x22c55e, 0xf59e0b, 0x8b5cf6, 0xec4899];
+    for (let i = 0; i < 5; i++) {
+        const food = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1, 8, 8),
+            new THREE.MeshStandardMaterial({ color: foodColors[i] })
+        );
+        food.position.set(-0.8 + i * 0.4, 1.25, 0);
+        bar.add(food);
+    }
+
+    // Mini fridge
+    const fridge = new THREE.Mesh(
+        new THREE.BoxGeometry(0.6, 1.0, 0.5),
+        new THREE.MeshStandardMaterial({ color: 0xe5e7eb, metalness: 0.6, roughness: 0.2 })
+    );
+    fridge.position.set(1.8, 0.5, 0);
+    bar.add(fridge);
+
+    // Fridge handle
+    const handle = new THREE.Mesh(
+        new THREE.BoxGeometry(0.04, 0.4, 0.04),
+        new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.8 })
+    );
+    handle.position.set(1.52, 0.6, 0.26);
+    bar.add(handle);
+
+    // Fridge accent light
+    const fridgeLight = new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, 0.05, 0.4),
+        new THREE.MeshStandardMaterial({ color: 0x3b82f6, emissive: 0x3b82f6, emissiveIntensity: 0.4 })
+    );
+    fridgeLight.position.set(1.8, 1.03, 0);
+    bar.add(fridgeLight);
+
+    bar.position.set(16, -5, -14); // Start below floor
+
+    scene.add(bar);
+
+    // Slide up animation
+    const startTime = Date.now();
+    function animateIn() {
+        const elapsed = (Date.now() - startTime) / 800;
+        if (elapsed < 1) {
+            const t = 1 - Math.pow(1 - elapsed, 4); // ease out quart
+            bar.position.y = -5 + 5 * t;
+            requestAnimationFrame(animateIn);
+        } else {
+            bar.position.y = 0;
+        }
+    }
+    animateIn();
+
+    addActivity('🍕', 'Snack bar opened! Agents stay fueled.', 'success');
+}
+
+// ==================== NOISE CANCELLING PANELS ====================
+function spawnNoisePanels() {
+    const panelColor = 0x374151;
+    const accentColor = 0xec4899;
+    const level = (G.upgrades.noise || 0) + 1;
+
+    // Place panels on the nearest wall (right side since facilities are on the right)
+    const wallX = 34.5;
+    const panelCount = 4;
+    const startZ = -18 - (level - 1) * 8;
+
+    for (let i = 0; i < panelCount; i++) {
+        const panel = new THREE.Group();
+
+        // Main acoustic panel
+        const foam = new THREE.Mesh(
+            new THREE.BoxGeometry(0.3, 2.5, 2.5),
+            new THREE.MeshStandardMaterial({ color: panelColor, roughness: 0.95 })
+        );
+        panel.add(foam);
+
+        // Acoustic texture — grid of small bumps
+        for (let row = -3; row <= 3; row++) {
+            for (let col = -3; col <= 3; col++) {
+                const bump = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.1, 0.25, 0.25),
+                    new THREE.MeshStandardMaterial({ color: 0x4b5563, roughness: 0.98 })
+                );
+                bump.position.set(0.18, row * 0.35, col * 0.35);
+                panel.add(bump);
+            }
+        }
+
+        // Accent border
+        const border = new THREE.Mesh(
+            new THREE.BoxGeometry(0.05, 2.7, 2.7),
+            new THREE.MeshStandardMaterial({ color: accentColor, emissive: accentColor, emissiveIntensity: 0.2 })
+        );
+        border.position.x = 0.18;
+        panel.add(border);
+
+        const targetZ = startZ + i * 3;
+        panel.position.set(wallX + 10, 5, targetZ); // Start off-screen right
+
+        scene.add(panel);
+
+        // Fly-in animation with stagger
+        const delay = i * 200;
+        const startTime = Date.now() + delay;
+        (function animatePanel() {
+            const elapsed = (Date.now() - startTime) / 600;
+            if (elapsed < 0) {
+                requestAnimationFrame(animatePanel);
+                return;
+            }
+            if (elapsed < 1) {
+                const t = 1 - Math.pow(1 - elapsed, 3); // ease out cubic
+                panel.position.x = (wallX + 10) - 10 * t;
+                // Slight rotation during flight
+                panel.rotation.y = (1 - t) * 0.5;
+                requestAnimationFrame(animatePanel);
+            } else {
+                panel.position.x = wallX;
+                panel.rotation.y = 0;
+            }
+        })();
+    }
+
+    addActivity('🔇', `Noise cancelling panels installed (level ${level})!`, 'success');
+}
+
 function webinarLeads() {
     G.leads += 200;
     addActivity('🎓', '+200 immediate leads from webinar!', 'success');
@@ -485,45 +745,45 @@ const UPGRADES = [
     // FRONT CENTER (z=-6): First purchase - FREE
     { id: 'super', name: 'Supervisor', icon: '👔', desc: 'FREE! Auto-wakes agents', long: 'Hire a floor supervisor who patrols and automatically wakes tired agents. FREE to get you started!', cost: 0, cat: 'mgmt', max: 1, fn: spawnSupervisor, pos: { x: 0, z: -6 } },
 
-    // ROW 1 (z=-10): LEADS & HIRING
-    { id: 'leads_50', name: '50 Leads', icon: '📋', desc: '+50 warm leads', long: 'Warm leads have 17% contact rate vs 5% cold calling!', cost: 100, cat: 'leads', fn: () => G.leads += 50, repeat: true, pos: { x: -8, z: -10 } },
-    { id: 'leads_200', name: '200 Leads', icon: '📦', desc: '+200 warm leads', long: 'Bulk buy! 3x better contact rates than cold calling.', cost: 350, cat: 'leads', fn: () => G.leads += 200, repeat: true, pos: { x: -4, z: -10 } },
-    { id: 'leads_500', name: '500 Leads', icon: '📊', desc: '+500 premium leads', long: 'Mega pack! Premium leads have 20% contact rate.', cost: 800, cat: 'leads', fn: () => G.leads += 500, repeat: true, pos: { x: 0, z: -10 } },
-    { id: 'vip', name: 'VIP Leads', icon: '⭐', desc: '+100 VIP leads', long: 'Pre-qualified and ready to buy. 25% contact rate!', cost: 600, cat: 'leads', fn: () => G.leads += 100, repeat: true, pos: { x: 4, z: -10 } },
-    { id: 'hire', name: 'Hire Agent', icon: '👤', desc: 'Recruit new rep', long: 'More agents = more calls = more sales! Each costs $40/day wages.', cost: 200, cat: 'hire', fn: hireAgent, repeat: true, mult: 1.4, pos: { x: 8, z: -10 } },
+    // ROW 1 (z=-8): LEADS & HIRING — center spread
+    { id: 'leads_50', name: '50 Leads', icon: '📋', desc: '+50 warm leads', long: 'Warm leads have 17% contact rate vs 5% cold calling!', cost: 100, cat: 'leads', fn: () => G.leads += 50, repeat: true, pos: { x: -12, z: -8 } },
+    { id: 'leads_200', name: '200 Leads', icon: '📦', desc: '+200 warm leads', long: 'Bulk buy! 3x better contact rates than cold calling.', cost: 350, cat: 'leads', fn: () => G.leads += 200, repeat: true, pos: { x: -6, z: -8 } },
+    { id: 'leads_500', name: '500 Leads', icon: '📊', desc: '+500 premium leads', long: 'Mega pack! Premium leads have 20% contact rate.', cost: 800, cat: 'leads', fn: () => G.leads += 500, repeat: true, pos: { x: 0, z: -8 } },
+    { id: 'vip', name: 'VIP Leads', icon: '⭐', desc: '+100 VIP leads', long: 'Pre-qualified and ready to buy. 25% contact rate!', cost: 600, cat: 'leads', fn: () => G.leads += 100, repeat: true, pos: { x: 6, z: -8 } },
+    { id: 'hire', name: 'Hire Agent', icon: '👤', desc: 'Recruit new rep', long: 'More agents = more calls = more sales! Each costs $40/day wages.', cost: 200, cat: 'hire', fn: hireAgent, repeat: true, mult: 1.4, pos: { x: 12, z: -8 } },
 
-    // ROW 2 (z=-14): TRAINING & TECH
-    { id: 'script', name: 'Script Training', icon: '📝', desc: '+5% conversion', long: 'Better scripts = more closes. Each level +5%.', cost: 150, cat: 'train', max: 5, mult: 1.7, pos: { x: -8, z: -14 } },
-    { id: 'local', name: 'Local Presence', icon: '📍', desc: '+8% answer rate', long: 'Local area codes get answered more!', cost: 300, cat: 'rep', max: 3, mult: 1.8, pos: { x: -4, z: -14 } },
+    // ROW 2 (z=-14): TRAINING & TECH — center spread
+    { id: 'script', name: 'Script Training', icon: '📝', desc: '+5% conversion', long: 'Better scripts = more closes. Each level +5%.', cost: 150, cat: 'train', max: 5, mult: 1.7, pos: { x: -12, z: -14 } },
+    { id: 'local', name: 'Local Presence', icon: '📍', desc: '+8% answer rate', long: 'Local area codes get answered more!', cost: 300, cat: 'rep', max: 3, mult: 1.8, pos: { x: -6, z: -14 } },
     { id: 'power', name: 'Power Dialer', icon: '⚡', desc: '2x dial speed', long: 'Auto-dial next lead. Doubles your speed!', cost: 500, cat: 'tech', max: 1, pos: { x: 0, z: -14 } },
-    { id: 'predict', name: 'Predictive Dialer', icon: '🤖', desc: 'AI dialing +40%', long: 'AI pre-dials leads. +40% efficiency!', cost: 1500, cat: 'tech', max: 1, pos: { x: 4, z: -14 } },
-    { id: 'crm', name: 'CRM System', icon: '💻', desc: '+15% conversion', long: 'Track prospects for better follow-ups.', cost: 1000, cat: 'tech', max: 3, mult: 1.5, pos: { x: 8, z: -14 } },
+    { id: 'predict', name: 'Predictive Dialer', icon: '🤖', desc: 'AI dialing +40%', long: 'AI pre-dials leads. +40% efficiency!', cost: 1500, cat: 'tech', max: 1, pos: { x: 6, z: -14 } },
+    { id: 'crm', name: 'CRM System', icon: '💻', desc: '+15% conversion', long: 'Track prospects for better follow-ups.', cost: 1000, cat: 'tech', max: 3, mult: 1.5, pos: { x: 12, z: -14 } },
 
-    // ROW 3 (z=-18): FACILITIES
-    { id: 'coffee', name: 'Coffee Machine', icon: '☕', desc: 'Slower energy drain', long: 'Caffeine keeps agents working longer!', cost: 300, cat: 'fac', max: 1, fn: spawnCoffeeMachine, pos: { x: -8, z: -18 } },
-    { id: 'ergo', name: 'Ergo Chairs', icon: '🪑', desc: '-20% energy drain', long: 'Comfortable chairs = happier agents.', cost: 400, cat: 'fac', max: 2, mult: 1.6, fn: upgradeChairs, pos: { x: -4, z: -18 } },
-    { id: 'break', name: 'Break Room', icon: '🛋️', desc: '+25% energy regen', long: 'Agents recover faster during breaks.', cost: 500, cat: 'fac', max: 2, mult: 1.6, pos: { x: 0, z: -18 } },
-    { id: 'snack', name: 'Snack Bar', icon: '🍕', desc: '+morale boost', long: 'Free snacks keep agents happy! +0.3 morale/min per level.', cost: 400, cat: 'fac', max: 3, mult: 1.4, pos: { x: 4, z: -18 } },
-    { id: 'noise', name: 'Noise Cancelling', icon: '🔇', desc: '-15% energy drain', long: 'Noise-cancelling headsets reduce stress and fatigue.', cost: 600, cat: 'fac', max: 2, mult: 1.5, pos: { x: 8, z: -18 } },
+    // RIGHT SIDE — FACILITIES (vertical column x=20)
+    { id: 'coffee', name: 'Coffee Machine', icon: '☕', desc: 'Slower energy drain', long: 'Caffeine keeps agents working longer!', cost: 300, cat: 'fac', max: 1, fn: spawnCoffeeMachine, pos: { x: 20, z: -18 } },
+    { id: 'ergo', name: 'Ergo Chairs', icon: '🪑', desc: '-20% energy drain', long: 'Comfortable chairs = happier agents.', cost: 400, cat: 'fac', max: 2, mult: 1.6, fn: upgradeChairs, pos: { x: 20, z: -22 } },
+    { id: 'break', name: 'Break Room', icon: '🛋️', desc: '+25% energy regen', long: 'Agents recover faster during breaks.', cost: 500, cat: 'fac', max: 2, mult: 1.6, fn: spawnBreakRoom, pos: { x: 20, z: -26 } },
+    { id: 'snack', name: 'Snack Bar', icon: '🍕', desc: 'Agent perk', long: 'Free snacks keep agents fueled and focused!', cost: 400, cat: 'fac', max: 3, mult: 1.4, fn: spawnSnackBar, pos: { x: 24, z: -18 } },
+    { id: 'noise', name: 'Noise Cancelling', icon: '🔇', desc: '-15% energy drain', long: 'Noise-cancelling headsets reduce stress and fatigue.', cost: 600, cat: 'fac', max: 2, mult: 1.5, fn: spawnNoisePanels, pos: { x: 24, z: -22 } },
 
-    // ROW 4 (z=-22): MANAGEMENT & COMPLIANCE
-    { id: 'qa', name: 'QA Team', icon: '🎧', desc: '+10 reputation', long: 'Monitors calls. +10 rep per level.', cost: 800, cat: 'comp', max: 2, mult: 1.8, fn: () => G.reputation = Math.min(100, G.reputation + 10), pos: { x: -8, z: -22 } },
-    { id: 'bonus', name: 'Bonus System', icon: '💰', desc: '+10% sale value', long: 'Commissions motivate bigger closes and happier agents.', cost: 750, cat: 'mgmt', max: 3, mult: 1.7, pos: { x: -4, z: -22 } },
-    { id: 'teamlead', name: 'Team Lead', icon: '👨‍💼', desc: '+10% agent speed', long: 'Team leads coach agents to work 10% faster per level.', cost: 1500, cat: 'mgmt', max: 3, mult: 1.8, pos: { x: 0, z: -22 } },
-    { id: 'overtime', name: 'Overtime Pay', icon: '⏰', desc: '+30min workday', long: 'Pay agents overtime to extend their shifts by 30 min per level.', cost: 800, cat: 'mgmt', max: 2, mult: 1.6, pos: { x: 4, z: -22 } },
-    { id: 'compliance', name: 'Compliance Suite', icon: '📜', desc: 'Prevent rep loss', long: 'Completely prevents reputation decay!', cost: 2000, cat: 'comp', max: 1, pos: { x: 8, z: -22 } },
+    // LEFT SIDE — MANAGEMENT & COMPLIANCE (vertical column x=-20)
+    { id: 'qa', name: 'QA Team', icon: '🎧', desc: '+10 reputation', long: 'Monitors calls. +10 rep per level.', cost: 800, cat: 'comp', max: 2, mult: 1.8, fn: () => G.reputation = Math.min(100, G.reputation + 10), pos: { x: -20, z: -18 } },
+    { id: 'bonus', name: 'Bonus System', icon: '💰', desc: '+10% sale value', long: 'Commissions motivate bigger closes and happier agents.', cost: 750, cat: 'mgmt', max: 3, mult: 1.7, pos: { x: -20, z: -22 } },
+    { id: 'teamlead', name: 'Team Lead', icon: '👨‍💼', desc: '+10% agent speed', long: 'Team leads coach agents to work 10% faster per level.', cost: 1500, cat: 'mgmt', max: 3, mult: 1.8, pos: { x: -20, z: -26 } },
+    { id: 'overtime', name: 'Overtime Pay', icon: '⏰', desc: '+30min workday', long: 'Pay agents overtime to extend their shifts by 30 min per level.', cost: 800, cat: 'mgmt', max: 2, mult: 1.6, pos: { x: -24, z: -18 } },
+    { id: 'compliance', name: 'Compliance Suite', icon: '📜', desc: 'Prevent rep loss', long: 'Completely prevents reputation decay!', cost: 2000, cat: 'comp', max: 1, pos: { x: -24, z: -22 } },
 
-    // ROW 5 (z=-26): MARKETING
-    { id: 'billboard', name: 'Billboard', icon: '🪧', desc: '+3 leads/day', long: 'Passive outdoor advertising generates 3 leads per day.', cost: 2000, cat: 'mkt', max: 1, pos: { x: -8, z: -26 } },
-    { id: 'social', name: 'Social Media', icon: '📱', desc: 'Rep-based leads/day', long: 'Your reputation generates leads! More rep = more leads each day.', cost: 1500, cat: 'mkt', max: 3, mult: 1.8, pos: { x: -4, z: -26 } },
-    { id: 'emailcamp', name: 'Email Campaign', icon: '📧', desc: 'Agent-based leads/day', long: 'Each agent generates 2 extra leads per day per level.', cost: 800, cat: 'mkt', max: 3, mult: 1.5, pos: { x: 0, z: -26 } },
-    { id: 'webinar', name: 'Webinar', icon: '🎓', desc: '+200 leads + 5/day', long: 'Host a webinar: get 200 leads NOW + 5 passive leads per day.', cost: 2500, cat: 'mkt', max: 2, mult: 2.0, fn: webinarLeads, pos: { x: 4, z: -26 } },
-    { id: 'referral', name: 'Referral Program', icon: '🤝', desc: '+5 leads/day', long: 'Happy customers refer friends. +5 auto leads per day per level.', cost: 1200, cat: 'mkt', max: 3, mult: 1.8, pos: { x: 8, z: -26 } },
+    // RIGHT SIDE DEEPER — MARKETING (x=20-24, z=-28 to -32)
+    { id: 'billboard', name: 'Billboard', icon: '🪧', desc: '+3 leads/day', long: 'Passive outdoor advertising generates 3 leads per day.', cost: 2000, cat: 'mkt', max: 1, pos: { x: 20, z: -30 } },
+    { id: 'social', name: 'Social Media', icon: '📱', desc: 'Rep-based leads/day', long: 'Your reputation generates leads! More rep = more leads each day.', cost: 1500, cat: 'mkt', max: 3, mult: 1.8, pos: { x: 24, z: -26 } },
+    { id: 'emailcamp', name: 'Email Campaign', icon: '📧', desc: 'Agent-based leads/day', long: 'Each agent generates 2 extra leads per day per level.', cost: 800, cat: 'mkt', max: 3, mult: 1.5, pos: { x: 24, z: -30 } },
+    { id: 'webinar', name: 'Webinar', icon: '🎓', desc: '+200 leads + 5/day', long: 'Host a webinar: get 200 leads NOW + 5 passive leads per day.', cost: 2500, cat: 'mkt', max: 2, mult: 2.0, fn: webinarLeads, pos: { x: 28, z: -26 } },
+    { id: 'referral', name: 'Referral Program', icon: '🤝', desc: '+5 leads/day', long: 'Happy customers refer friends. +5 auto leads per day per level.', cost: 1200, cat: 'mkt', max: 3, mult: 1.8, pos: { x: 28, z: -30 } },
 
-    // ROW 6 (z=-30): EXPANSION
-    { id: 'nightshift', name: 'Night Shift', icon: '🌙', desc: 'Work til 10pm!', long: 'Unlock night shift operations. Extends workday by 4 hours! Massive revenue boost.', cost: 5000, cat: 'mgmt', max: 1, pos: { x: 0, z: -30 } },
-    { id: 'autodialer', name: 'Auto-Dialer', icon: '🔄', desc: '3x dial speed', long: 'Fully automated dialing system. Triples your dial speed!', cost: 2500, cat: 'tech', max: 1, pos: { x: -4, z: -30 } },
-    { id: 'analytics', name: 'Analytics', icon: '📈', desc: '+reputation/day', long: 'Data-driven insights improve your reputation over time. +2 rep per day.', cost: 600, cat: 'tech', max: 2, mult: 1.7, pos: { x: 4, z: -30 } }
+    // LEFT SIDE DEEPER — EXPANSION (x=-20 to -24, z=-28 to -32)
+    { id: 'nightshift', name: 'Night Shift', icon: '🌙', desc: 'Work til 10pm!', long: 'Unlock night shift operations. Extends workday by 4 hours! Massive revenue boost.', cost: 5000, cat: 'mgmt', max: 1, pos: { x: -20, z: -30 } },
+    { id: 'autodialer', name: 'Auto-Dialer', icon: '🔄', desc: '3x dial speed', long: 'Fully automated dialing system. Triples your dial speed!', cost: 2500, cat: 'tech', max: 1, pos: { x: -24, z: -26 } },
+    { id: 'analytics', name: 'Analytics', icon: '📈', desc: '+reputation/day', long: 'Data-driven insights improve your reputation over time. +2 rep per day.', cost: 600, cat: 'tech', max: 2, mult: 1.7, pos: { x: -24, z: -30 } }
 ];
 
 const COLORS = { leads: 0xf59e0b, hire: 0x3b82f6, train: 0x22c55e, rep: 0xa855f7, tech: 0x00e5c7, fac: 0xec4899, mgmt: 0x6366f1, comp: 0x8b5cf6, mkt: 0xff6b35 };
@@ -651,7 +911,7 @@ function createEnvironment() {
     const tileGeo = new THREE.PlaneGeometry(4, 4);
     const tileMat1 = new THREE.MeshStandardMaterial({ color: 0x6b7280, roughness: 0.95 });
     const tileMat2 = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.95 });
-    for (let x = -18; x <= 18; x += 4) {
+    for (let x = -32; x <= 32; x += 4) {
         for (let z = -34; z <= 18; z += 4) {
             const tile = new THREE.Mesh(tileGeo, (x + z) % 8 === 0 ? tileMat1 : tileMat2);
             tile.rotation.x = -Math.PI / 2;
@@ -674,18 +934,18 @@ function createEnvironment() {
     const accentMat = new THREE.MeshStandardMaterial({ color: 0x00e5c7, roughness: 0.5 });
 
     // Back wall with accent stripe
-    const back = new THREE.Mesh(new THREE.BoxGeometry(60, 12, 0.5), wallMat);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(80, 12, 0.5), wallMat);
     back.position.set(0, 6, -36);
     back.castShadow = back.receiveShadow = true;
     scene.add(back);
 
-    const accentStripe = new THREE.Mesh(new THREE.BoxGeometry(60, 0.8, 0.1), accentMat);
+    const accentStripe = new THREE.Mesh(new THREE.BoxGeometry(80, 0.8, 0.1), accentMat);
     accentStripe.position.set(0, 10, -35.6);
     scene.add(accentStripe);
 
     // Side walls
-    [-28, 28].forEach(x => {
-        const side = new THREE.Mesh(new THREE.BoxGeometry(0.5, 12, 70), wallMat);
+    [-35, 35].forEach(x => {
+        const side = new THREE.Mesh(new THREE.BoxGeometry(0.5, 12, 80), wallMat);
         side.position.set(x, 6, -8);
         side.castShadow = side.receiveShadow = true;
         scene.add(side);
@@ -1631,7 +1891,7 @@ function updatePlayer() {
     if (isWalking) {
         dir.normalize().multiplyScalar(0.16);
         player.position.add(dir);
-        player.position.x = Math.max(-20, Math.min(20, player.position.x));
+        player.position.x = Math.max(-30, Math.min(30, player.position.x));
         player.position.z = Math.max(-33, Math.min(22, player.position.z));
 
         // Face movement direction
@@ -1961,12 +2221,12 @@ document.addEventListener('visibilitychange', () => {
 
 function createCategorySigns() {
     const signs = [
-        { text: '📋 LEADS & HIRING', z: -10, color: 0xf59e0b },
-        { text: '⚡ TRAINING & TECH', z: -14, color: 0x00e5c7 },
-        { text: '🛋️ FACILITIES', z: -18, color: 0xec4899 },
-        { text: '🎧 MANAGEMENT', z: -22, color: 0x8b5cf6 },
-        { text: '📱 MARKETING', z: -26, color: 0xff6b35 },
-        { text: '🚀 EXPANSION', z: -30, color: 0x10b981 }
+        { text: '📋 LEADS & HIRING', x: 0, z: -8, color: 0xf59e0b },
+        { text: '⚡ TRAINING & TECH', x: 0, z: -14, color: 0x00e5c7 },
+        { text: '🛋️ FACILITIES', x: 22, z: -17, color: 0xec4899 },
+        { text: '🎧 MANAGEMENT', x: -22, z: -17, color: 0x8b5cf6 },
+        { text: '📱 MARKETING', x: 24, z: -27, color: 0xff6b35 },
+        { text: '🚀 EXPANSION', x: -22, z: -27, color: 0x10b981 }
     ];
 
     signs.forEach(s => {
@@ -1982,7 +2242,7 @@ function createCategorySigns() {
         const texture = new THREE.CanvasTexture(canvas);
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
         sprite.scale.set(8, 1.2, 1);
-        sprite.position.set(0, 3.5, s.z + 2);
+        sprite.position.set(s.x, 3.5, s.z + 2);
         scene.add(sprite);
     });
 }
