@@ -26,10 +26,12 @@ Built with **Three.js** for immersive 3D graphics, the game runs entirely in you
 
 ## 🎮 Play Now
 
+**👉 [Play The Call Floor](https://ryanshatz.github.io/TheCallFloor/) — No download required!**
+
+Or run locally:
 1. Clone this repository
-2. Open `index.html` in your browser, or
-3. Run a local server: `python -m http.server 8080`
-4. Navigate to `http://localhost:8080`
+2. Run a local server: `python -m http.server 8080`
+3. Navigate to `http://localhost:8080`
 
 ## ✨ Features
 
