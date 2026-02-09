@@ -462,6 +462,19 @@ function spawnCoffeeMachine() {
     addActivity('☕', 'Coffee machine installed!', 'success');
 }
 
+// ==================== ERGO CHAIRS UPGRADE ====================
+function upgradeChairs() {
+    // Change all desk chairs to premium green color
+    desks.forEach(d => {
+        if (d.userData.chair) {
+            d.userData.chair.material.color.setHex(0x22c55e);
+            d.userData.chair.material.emissive = new THREE.Color(0x22c55e);
+            d.userData.chair.material.emissiveIntensity = 0.15;
+        }
+    });
+    addActivity('🪑', 'Ergonomic chairs installed!', 'success');
+}
+
 // ==================== UPGRADES ====================
 const UPGRADES = [
     // FRONT CENTER - First purchase (FREE)
@@ -476,7 +489,7 @@ const UPGRADES = [
 
     // ROW 2 (z = -16): TECH & FACILITIES
     { id: 'coffee', name: 'Coffee Machine', icon: '☕', desc: 'Slower energy drain', long: 'Keep your agents caffeinated! Coffee reduces energy drain so agents work longer before needing a break.', cost: 300, cat: 'fac', max: 1, fn: spawnCoffeeMachine, pos: { x: -8, z: -16 } },
-    { id: 'ergo', name: 'Ergo Chairs', icon: '🪑', desc: '-20% energy drain', long: 'Comfortable chairs mean happier agents. Each level reduces energy drain by 20%, letting agents work longer sessions.', cost: 400, cat: 'fac', max: 2, mult: 1.6, pos: { x: -4, z: -16 } },
+    { id: 'ergo', name: 'Ergo Chairs', icon: '🪑', desc: '-20% energy drain', long: 'Comfortable chairs mean happier agents. Each level reduces energy drain by 20%, letting agents work longer sessions.', cost: 400, cat: 'fac', max: 2, mult: 1.6, fn: upgradeChairs, pos: { x: -4, z: -16 } },
     { id: 'power', name: 'Power Dialer', icon: '⚡', desc: '2x dial speed', long: 'Automatically dials the next lead when a call ends. Doubles your dial speed, meaning twice the calls per hour!', cost: 500, cat: 'tech', max: 1, pos: { x: 0, z: -16 } },
     { id: 'predict', name: 'Predictive Dialer', icon: '🤖', desc: 'AI-powered dialing', long: 'Advanced AI predicts when agents will be free and pre-dials leads. Massive efficiency boost - +40% more effective!', cost: 1500, cat: 'tech', max: 1, pos: { x: 4, z: -16 } },
     { id: 'analytics', name: 'Analytics', icon: '📈', desc: 'Better optimization', long: 'Data-driven insights help optimize call times and scripts. Improves overall efficiency and conversion tracking.', cost: 600, cat: 'tech', max: 2, mult: 1.7, pos: { x: 8, z: -16 } },
@@ -964,6 +977,9 @@ function createDesk(x, z) {
     phone.position.set(0.6, 0.84, -0.2);
     g.add(phone);
 
+    // Save chair reference for ergo upgrade
+    g.userData.chair = chair;
+
     scene.add(g);
     desks.push(g);
     return g;
@@ -1051,6 +1067,22 @@ function createAgent(desk) {
     zzz.visible = false;
     g.add(zzz);
 
+    // === ENERGY BAR ===
+    const barBg = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.5, 0.08),
+        new THREE.MeshBasicMaterial({ color: 0x333333 })
+    );
+    barBg.position.set(0, 1.95, 0);
+    barBg.lookAt(camera.position);
+    g.add(barBg);
+
+    const barFill = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.48, 0.06),
+        new THREE.MeshBasicMaterial({ color: 0x22c55e })
+    );
+    barFill.position.set(0, 1.95, 0.01);
+    g.add(barFill);
+
     g.position.copy(desk.position);
     g.position.z += 0.75;
     scene.add(g);
@@ -1062,7 +1094,9 @@ function createAgent(desk) {
         energy: 50 + Math.random() * 50, // Random 50-100 so agents get tired at different times
         drainRate: 0.7 + Math.random() * 0.6, // Random 0.7-1.3 multiplier for energy drain speed
         zzz,
-        body
+        body,
+        barFill,
+        barBg
     };
 }
 
@@ -1095,11 +1129,28 @@ function spawnSupervisor() {
     clipboard.position.set(0.3, 1.0, 0.1);
     g.add(clipboard);
 
+    // Name tag sprite
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'rgba(99,102,241,0.9)';
+    ctx.roundRect(0, 0, 256, 64, 10);
+    ctx.fill();
+    ctx.font = 'bold 28px Inter, sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.fillText('👔 SUPERVISOR', 128, 42);
+    const nameTag = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true }));
+    nameTag.scale.set(1.5, 0.4, 1);
+    nameTag.position.y = 2;
+    g.add(nameTag);
+
     // Start at desk area (negative z)
     g.position.set(-6, 0, -10);
     scene.add(g);
 
-    supervisor = { mesh: g, targetIdx: 0, moving: true };
+    supervisor = { mesh: g, targetIdx: 0, moving: true, nameTag };
     addActivity('👔', 'Supervisor hired!', 'success');
 }
 
@@ -1432,6 +1483,20 @@ function updateAgent(a, dt) {
     // Zzz float
     if (a.state === 'sleeping') {
         a.zzz.position.y = 1.8 + Math.sin(Date.now() * 0.003) * 0.1;
+    }
+
+    // Update energy bar
+    if (a.barFill) {
+        const pct = Math.max(0, Math.min(1, a.energy / 100));
+        a.barFill.scale.x = pct;
+        a.barFill.position.x = -0.24 * (1 - pct);
+        // Color: green -> yellow -> red
+        const r = pct < 0.5 ? 1 : 1 - (pct - 0.5) * 2;
+        const g = pct > 0.5 ? 1 : pct * 2;
+        a.barFill.material.color.setRGB(r, g, 0.2);
+        // Face camera
+        a.barBg.quaternion.copy(camera.quaternion);
+        a.barFill.quaternion.copy(camera.quaternion);
     }
 }
 
@@ -1824,7 +1889,6 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// ==================== CATEGORY ROW SIGNS ====================
 function createCategorySigns() {
     const signs = [
         { text: '📋 ESSENTIALS', z: -10, color: 0xf59e0b },
@@ -1848,4 +1912,30 @@ function createCategorySigns() {
         sprite.position.set(0, 3.5, s.z + 2);
         scene.add(sprite);
     });
+}
+
+// ==================== DAY/NIGHT LIGHTING CYCLE ====================
+let ambientLight = null;
+function updateDayNightLighting() {
+    if (!ambientLight) {
+        scene.traverse(obj => {
+            if (obj.isAmbientLight) ambientLight = obj;
+        });
+    }
+    if (!ambientLight) return;
+
+    // Morning (9-12): warm, Afternoon (12-15): bright, Evening (15-18): cooler
+    const hour = G.hour;
+    let r = 1, g = 1, b = 1;
+    if (hour < 12) {
+        // Morning: warm orange tint
+        r = 1; g = 0.95; b = 0.85;
+    } else if (hour < 15) {
+        // Afternoon: bright white
+        r = 1; g = 1; b = 1;
+    } else {
+        // Evening: cooler blue tint
+        r = 0.9; g = 0.92; b = 1;
+    }
+    ambientLight.color.setRGB(r, g, b);
 }
