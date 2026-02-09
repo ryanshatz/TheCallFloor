@@ -494,11 +494,24 @@ const UPGRADES = [
     { id: 'predict', name: 'Predictive Dialer', icon: '🤖', desc: 'AI-powered dialing', long: 'Advanced AI predicts when agents will be free and pre-dials leads. Massive efficiency boost - +40% more effective!', cost: 1500, cat: 'tech', max: 1, pos: { x: 4, z: -16 } },
     { id: 'analytics', name: 'Analytics', icon: '📈', desc: 'Better optimization', long: 'Data-driven insights help optimize call times and scripts. Improves overall efficiency and conversion tracking.', cost: 600, cat: 'tech', max: 2, mult: 1.7, pos: { x: 8, z: -16 } },
 
-    // ROW 3 (z = -22): MANAGEMENT & COMPLIANCE
-    { id: 'qa', name: 'QA Team', icon: '🎧', desc: '+10 reputation', long: 'Quality Assurance monitors calls for compliance. Each level adds +10 reputation and prevents reputation decay overnight.', cost: 800, cat: 'comp', max: 2, mult: 1.8, fn: () => G.reputation = Math.min(100, G.reputation + 10), pos: { x: 0, z: -22 } }
+
+    // ROW 3 (z = -22): MANAGEMENT & ADVANCED
+    { id: 'qa', name: 'QA Team', icon: '🎧', desc: '+10 reputation', long: 'Quality Assurance monitors calls for compliance. Each level adds +10 reputation and prevents reputation decay overnight.', cost: 800, cat: 'comp', max: 2, mult: 1.8, fn: () => G.reputation = Math.min(100, G.reputation + 10), pos: { x: -8, z: -22 } },
+    { id: 'crm', name: 'CRM System', icon: '💻', desc: '+15% conversion', long: 'Customer Relationship Management tracks prospects and history. Better follow-ups mean more closes! Each level adds +15% conversion.', cost: 1000, cat: 'tech', max: 3, mult: 1.5, pos: { x: -4, z: -22 } },
+    { id: 'break', name: 'Break Room', icon: '🛋️', desc: '+25% energy regen', long: 'A comfortable break room helps agents recover faster. Sleeping agents regain energy 25% faster with each level.', cost: 500, cat: 'fac', max: 2, mult: 1.6, pos: { x: 0, z: -22 } },
+    { id: 'bonus', name: 'Bonus System', icon: '💰', desc: '+10% sale value', long: 'Commission bonuses motivate agents to close bigger deals. Each level adds +10% to every sale value!', cost: 750, cat: 'mgmt', max: 3, mult: 1.7, pos: { x: 4, z: -22 } },
+    { id: 'leads_500', name: '500 Leads', icon: '📊', desc: '+500 premium leads', long: 'Mega pack of hot leads! Premium leads have 20% contact rate and higher conversion potential.', cost: 800, cat: 'leads', fn: () => G.leads += 500, repeat: true, pos: { x: 8, z: -22 } },
+
+    // ROW 4 (z = -28): PREMIUM UPGRADES
+    { id: 'autodialer', name: 'Auto-Dialer', icon: '🔄', desc: '3x dial speed', long: 'Fully automated dialing system that calls the next lead instantly. Triples your dial speed!', cost: 2500, cat: 'tech', max: 1, pos: { x: -8, z: -28 } },
+    { id: 'vip', name: 'VIP Leads', icon: '⭐', desc: '+100 high-value leads', long: 'VIP leads are pre-qualified and ready to buy. 25% contact rate and 2x sale values!', cost: 600, cat: 'leads', fn: () => G.leads += 100, repeat: true, pos: { x: -4, z: -28 } },
+    { id: 'referral', name: 'Referral Program', icon: '🤝', desc: '+5 free leads/day', long: 'Happy customers refer their friends. Gain 5 free warm leads at the start of each day!', cost: 1200, cat: 'leads', max: 3, mult: 1.8, pos: { x: 0, z: -28 } },
+    { id: 'compliance', name: 'Compliance Suite', icon: '📜', desc: 'Prevent rep loss', long: 'Advanced compliance monitoring ensures all calls meet regulations. Completely prevents reputation decay!', cost: 2000, cat: 'comp', max: 1, pos: { x: 4, z: -28 } },
+    { id: 'wellness', name: 'Wellness Program', icon: '🧘', desc: '-30% energy drain', long: 'Yoga, meditation, and health programs keep agents energized. Stacks with coffee and chairs!', cost: 1500, cat: 'fac', max: 2, mult: 1.5, pos: { x: 8, z: -28 } }
 ];
 
 const COLORS = { leads: 0xf59e0b, hire: 0x3b82f6, train: 0x22c55e, rep: 0xa855f7, tech: 0x00e5c7, fac: 0xec4899, mgmt: 0x6366f1, comp: 0x8b5cf6 };
+
 
 // ==================== THREE.JS SETUP ====================
 let scene, camera, renderer, player, playerLight;
@@ -1214,9 +1227,9 @@ function purchaseUpgrade(u) {
     updateHUD();
     saveGame(); // Save after purchase
 
-    // Update label
+    // Update label for upgrades with changing prices
     const pad = pads.find(p => p.userData.upgrade.id === u.id);
-    if (pad && u.max) updatePadLabel(pad, u);
+    if (pad && (u.max || (u.repeat && u.mult))) updatePadLabel(pad, u);
 }
 
 function updatePadLabel(pad, u) {
@@ -1242,10 +1255,18 @@ function updatePadLabel(pad, u) {
     ctx.textAlign = 'center';
     ctx.fillText(u.icon + ' ' + u.name, 128, 48);
 
-    if (lvl >= u.max) {
+    if (u.max && lvl >= u.max) {
         ctx.font = 'bold 22px JetBrains Mono, monospace';
         ctx.fillStyle = '#00e5c7';
         ctx.fillText('MAXED', 128, 80);
+    } else if (u.repeat) {
+        // Repeat upgrades: show cost and count
+        ctx.font = '18px JetBrains Mono, monospace';
+        ctx.fillStyle = '#22c55e';
+        ctx.fillText('$' + cost, 128, 75);
+        ctx.font = '14px Inter, sans-serif';
+        ctx.fillStyle = '#8b949e';
+        ctx.fillText('Purchased: ' + lvl + 'x', 128, 100);
     } else {
         ctx.font = '18px JetBrains Mono, monospace';
         ctx.fillStyle = '#22c55e';
@@ -1893,7 +1914,8 @@ function createCategorySigns() {
     const signs = [
         { text: '📋 ESSENTIALS', z: -10, color: 0xf59e0b },
         { text: '⚡ TECH & FACILITIES', z: -16, color: 0x00e5c7 },
-        { text: '🎧 MANAGEMENT', z: -22, color: 0x8b5cf6 }
+        { text: '🎧 MANAGEMENT', z: -22, color: 0x8b5cf6 },
+        { text: '⭐ PREMIUM', z: -28, color: 0xffd700 }
     ];
 
     signs.forEach(s => {
