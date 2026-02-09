@@ -35,11 +35,12 @@ Or run locally:
 
 ## ✨ Features
 
-- **3D Environment**: Fully rendered call center with desks, agents, coffee machines, and office furniture
+- **3D Environment**: Fully rendered call center with premium dark floors, accent lighting, desks, plants, and office furniture
 - **Agent Management**: Hire, train, and manage your growing sales team
 - **Energy System**: Agents get tired and need breaks — hire a supervisor to auto-wake them
 - **Warm vs Cold Calling**: Warm leads convert 3x better, but agents can cold call when leads run dry
-- **28 Upgrades** across 6 categories with escalating costs and meaningful progression
+- **28 Upgrades** across 6 zones spread throughout the office
+- **3D Facility Spawns**: Purchasing facility upgrades spawns detailed 3D objects with animations (coffee machines, break rooms, snack bars, acoustic panels)
 - **Marketing System**: Auto-generate leads daily through Billboard, Social Media, Email Campaigns, Webinars, and Referrals
 - **Extended Shifts**: Overtime Pay and Night Shift upgrades let agents work longer hours
 - **Reputation System**: Earn rep through sales and QA — higher rep means better contact rates
@@ -62,16 +63,16 @@ Or run locally:
 
 ## 🛒 Upgrades
 
-The game features **28 upgrade pads** spread across 6 rows, each unlocking new capabilities. Walk over a glowing pad and press **E** to purchase.
+The game features **28 upgrade pads** spread across 6 zones around the office. Walk over a glowing pad and press **E** to purchase.
 
 ---
 
-### � Supervisor (FREE — Center Front)
+### 👔 Supervisor (FREE — Center Front)
 Your first purchase! Hires a floor supervisor who patrols and automatically wakes tired agents.
 
 ---
 
-### 📋 Row 1: Leads & Hiring (z=-10)
+### 📋 Leads & Hiring (Center)
 | Upgrade | Cost | Max | Effect |
 |---------|------|-----|--------|
 | 50 Leads | $100 | ∞ | +50 warm leads (17% contact rate) |
@@ -82,29 +83,31 @@ Your first purchase! Hires a floor supervisor who patrols and automatically wake
 
 ---
 
-### ⚡ Row 2: Training & Tech (z=-14)
+### ⚡ Training & Tech (Center)
 | Upgrade | Cost | Max | Effect |
 |---------|------|-----|--------|
 | Script Training | $150+ | 5 | +5% conversion rate per level |
 | Local Presence | $300+ | 3 | +8% answer rate per level |
 | Power Dialer | $500 | 1 | 2x dial speed |
 | Predictive Dialer | $1,500 | 1 | AI-powered +40% efficiency |
-| CRM System | $1,000+ | 3 | +3% conversion per level (follow-up tracking) |
+| CRM System | $1,000+ | 3 | +15% conversion per level (follow-up tracking) |
 
 ---
 
-### 🛋️ Row 3: Facilities (z=-18)
+### 🛋️ Facilities (Right Side)
+Purchasing these spawns 3D objects with animations!
+
 | Upgrade | Cost | Max | Effect |
 |---------|------|-----|--------|
-| Coffee Machine | ☕ $300 | 1 | -30% energy drain (spawns 3D coffee machine!) |
-| Ergo Chairs | 🪑 $400+ | 2 | -10% energy drain per level |
-| Break Room | 🛋️ $500+ | 2 | +25% energy regen during breaks |
-| Snack Bar | 🍕 $400+ | 3 | Office perk for agents |
-| Noise Cancelling | 🔇 $600+ | 2 | -15% energy drain per level |
+| Coffee Machine ☕ | $300 | 1 | -30% energy drain (spawns 3D coffee machine) |
+| Ergo Chairs 🪑 | $400+ | 2 | -20% energy drain per level |
+| Break Room 🛋️ | $500+ | 2 | +25% energy regen (spawns couch, table, plant) |
+| Snack Bar 🍕 | $400+ | 3 | Agent perk (spawns counter, fridge, food) |
+| Noise Cancelling 🔇 | $600+ | 2 | -15% energy drain (spawns acoustic wall panels) |
 
 ---
 
-### 🎧 Row 4: Management & Compliance (z=-22)
+### 🎧 Management & Compliance (Left Side)
 | Upgrade | Cost | Max | Effect |
 |---------|------|-----|--------|
 | QA Team | $800+ | 2 | +10 reputation per level, prevents rep decay |
@@ -115,7 +118,7 @@ Your first purchase! Hires a floor supervisor who patrols and automatically wake
 
 ---
 
-### 📱 Row 5: Marketing (z=-26)
+### 📱 Marketing (Right Side — Deep)
 Auto-generate leads at the end of each day — no manual purchasing needed!
 
 | Upgrade | Cost | Max | Effect |
@@ -128,14 +131,14 @@ Auto-generate leads at the end of each day — no manual purchasing needed!
 
 ---
 
-### 🚀 Row 6: Expansion (z=-30)
+### 🚀 Expansion (Left Side — Deep)
 Late-game power upgrades for maximum growth.
 
 | Upgrade | Cost | Max | Effect |
 |---------|------|-----|--------|
-| Auto-Dialer | $2,500 | 1 | 3x dial speed (fully automated dialing) |
 | Night Shift | $5,000 | 1 | Extends workday to 10pm (+4 hours!) |
-| Analytics | $600+ | 2 | Data-driven reputation insights |
+| Auto-Dialer | $2,500 | 1 | 3x dial speed (fully automated dialing) |
+| Analytics | $600+ | 2 | Data-driven reputation insights (+2 rep/day) |
 
 ---
 
@@ -184,13 +187,18 @@ Marketing upgrades generate free leads at the end of every day:
 
 ```
 TheCallFloor/
-├── index.html      # Main HTML with UI and styles
-├── game.js         # All game logic, 3D scene, mechanics
-├── three.min.js    # Three.js library
-├── logo.png        # Project logo
-├── LICENSE         # MIT License
-├── CONTRIBUTING.md # Contribution guidelines
-└── README.md       # This file
+├── index.html          # Main HTML with UI and styles
+├── game.js             # All game logic, 3D scene, mechanics
+├── three.min.js        # Three.js library
+├── logo.png            # Project logo
+├── package.json        # Project metadata
+├── data/               # Game configuration data (JSON)
+├── src/                # Source modules (models, simulation, persistence)
+├── tests/              # Test files
+├── ui/                 # UI styles and components
+├── LICENSE             # MIT License
+├── CONTRIBUTING.md     # Contribution guidelines
+└── README.md           # This file
 ```
 
 ## 🤝 Contributing
