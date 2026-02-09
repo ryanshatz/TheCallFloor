@@ -502,12 +502,12 @@ const UPGRADES = [
     { id: 'bonus', name: 'Bonus System', icon: '💰', desc: '+10% sale value', long: 'Commission bonuses motivate agents to close bigger deals. Each level adds +10% to every sale value!', cost: 750, cat: 'mgmt', max: 3, mult: 1.7, pos: { x: 4, z: -22 } },
     { id: 'leads_500', name: '500 Leads', icon: '📊', desc: '+500 premium leads', long: 'Mega pack of hot leads! Premium leads have 20% contact rate and higher conversion potential.', cost: 800, cat: 'leads', fn: () => G.leads += 500, repeat: true, pos: { x: 8, z: -22 } },
 
-    // ROW 4 (z = -28): PREMIUM UPGRADES
-    { id: 'autodialer', name: 'Auto-Dialer', icon: '🔄', desc: '3x dial speed', long: 'Fully automated dialing system that calls the next lead instantly. Triples your dial speed!', cost: 2500, cat: 'tech', max: 1, pos: { x: -8, z: -28 } },
-    { id: 'vip', name: 'VIP Leads', icon: '⭐', desc: '+100 high-value leads', long: 'VIP leads are pre-qualified and ready to buy. 25% contact rate and 2x sale values!', cost: 600, cat: 'leads', fn: () => G.leads += 100, repeat: true, pos: { x: -4, z: -28 } },
-    { id: 'referral', name: 'Referral Program', icon: '🤝', desc: '+5 free leads/day', long: 'Happy customers refer their friends. Gain 5 free warm leads at the start of each day!', cost: 1200, cat: 'leads', max: 3, mult: 1.8, pos: { x: 0, z: -28 } },
-    { id: 'compliance', name: 'Compliance Suite', icon: '📜', desc: 'Prevent rep loss', long: 'Advanced compliance monitoring ensures all calls meet regulations. Completely prevents reputation decay!', cost: 2000, cat: 'comp', max: 1, pos: { x: 4, z: -28 } },
-    { id: 'wellness', name: 'Wellness Program', icon: '🧘', desc: '-30% energy drain', long: 'Yoga, meditation, and health programs keep agents energized. Stacks with coffee and chairs!', cost: 1500, cat: 'fac', max: 2, mult: 1.5, pos: { x: 8, z: -28 } }
+    // ROW 4 (z = -25): PREMIUM UPGRADES
+    { id: 'autodialer', name: 'Auto-Dialer', icon: '🔄', desc: '3x dial speed', long: 'Fully automated dialing system that calls the next lead instantly. Triples your dial speed!', cost: 2500, cat: 'tech', max: 1, pos: { x: -8, z: -25 } },
+    { id: 'vip', name: 'VIP Leads', icon: '⭐', desc: '+100 high-value leads', long: 'VIP leads are pre-qualified and ready to buy. 25% contact rate and 2x sale values!', cost: 600, cat: 'leads', fn: () => G.leads += 100, repeat: true, pos: { x: -4, z: -25 } },
+    { id: 'referral', name: 'Referral Program', icon: '🤝', desc: '+5 free leads/day', long: 'Happy customers refer their friends. Gain 5 free warm leads at the start of each day!', cost: 1200, cat: 'leads', max: 3, mult: 1.8, pos: { x: 0, z: -25 } },
+    { id: 'compliance', name: 'Compliance Suite', icon: '📜', desc: 'Prevent rep loss', long: 'Advanced compliance monitoring ensures all calls meet regulations. Completely prevents reputation decay!', cost: 2000, cat: 'comp', max: 1, pos: { x: 4, z: -25 } },
+    { id: 'wellness', name: 'Wellness Program', icon: '🧘', desc: '-30% energy drain', long: 'Yoga, meditation, and health programs keep agents energized. Stacks with coffee and chairs!', cost: 1500, cat: 'fac', max: 2, mult: 1.5, pos: { x: 8, z: -25 } }
 ];
 
 const COLORS = { leads: 0xf59e0b, hire: 0x3b82f6, train: 0x22c55e, rep: 0xa855f7, tech: 0x00e5c7, fac: 0xec4899, mgmt: 0x6366f1, comp: 0x8b5cf6 };
@@ -1915,7 +1915,7 @@ function createCategorySigns() {
         { text: '📋 ESSENTIALS', z: -10, color: 0xf59e0b },
         { text: '⚡ TECH & FACILITIES', z: -16, color: 0x00e5c7 },
         { text: '🎧 MANAGEMENT', z: -22, color: 0x8b5cf6 },
-        { text: '⭐ PREMIUM', z: -28, color: 0xffd700 }
+        { text: '⭐ PREMIUM', z: -25, color: 0xffd700 }
     ];
 
     signs.forEach(s => {
