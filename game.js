@@ -4,7 +4,8 @@ const G = {
     day: 1, hour: 9, minute: 0, isRunning: true, speed: 1,
     dials: 0, contacts: 0, conversions: 0, revenue: 0, costs: 0,
     upgrades: {}, hasSupervisor: false, hasCoffee: false,
-    totalRevenue: 0, totalSales: 0 // Lifetime stats
+    totalRevenue: 0, totalSales: 0, // Lifetime stats
+    agentsLost: 0 // Track agents who quit from low morale
 };
 
 // ==================== SAVE/LOAD SYSTEM ====================
@@ -21,7 +22,8 @@ function saveGame() {
         hasCoffee: G.hasCoffee,
         totalRevenue: G.totalRevenue,
         totalSales: G.totalSales,
-        agentCount: G.agents.length
+        agentCount: G.agents.length,
+        agentsLost: G.agentsLost || 0
     };
     try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
@@ -45,6 +47,7 @@ function loadGame() {
         G.hasCoffee = save.hasCoffee || false;
         G.totalRevenue = save.totalRevenue || 0;
         G.totalSales = save.totalSales || 0;
+        G.agentsLost = save.agentsLost || 0;
 
         return save;
     } catch (e) {
@@ -475,40 +478,66 @@ function upgradeChairs() {
     addActivity('🪑', 'Ergonomic chairs installed!', 'success');
 }
 
+// ==================== MORALE HELPERS ====================
+function boostAllMorale(amount) {
+    G.agents.forEach(a => { a.morale = Math.min(100, a.morale + amount); });
+    addActivity('😊', `+${amount} morale to all agents!`, 'success');
+}
+
+function webinarLeads() {
+    G.leads += 200;
+    addActivity('🎓', '+200 immediate leads from webinar!', 'success');
+}
+
 // ==================== UPGRADES ====================
 const UPGRADES = [
     // FRONT CENTER (z=-6): First purchase - FREE
     { id: 'super', name: 'Supervisor', icon: '👔', desc: 'FREE! Auto-wakes agents', long: 'Hire a floor supervisor who patrols and automatically wakes tired agents. FREE to get you started!', cost: 0, cat: 'mgmt', max: 1, fn: spawnSupervisor, pos: { x: 0, z: -6 } },
 
-    // ROW 1 (z=-10): LEADS & HIRING - Get leads and agents
+    // ROW 1 (z=-10): LEADS & HIRING
     { id: 'leads_50', name: '50 Leads', icon: '📋', desc: '+50 warm leads', long: 'Warm leads have 17% contact rate vs 5% cold calling!', cost: 100, cat: 'leads', fn: () => G.leads += 50, repeat: true, pos: { x: -8, z: -10 } },
     { id: 'leads_200', name: '200 Leads', icon: '📦', desc: '+200 warm leads', long: 'Bulk buy! 3x better contact rates than cold calling.', cost: 350, cat: 'leads', fn: () => G.leads += 200, repeat: true, pos: { x: -4, z: -10 } },
     { id: 'leads_500', name: '500 Leads', icon: '📊', desc: '+500 premium leads', long: 'Mega pack! Premium leads have 20% contact rate.', cost: 800, cat: 'leads', fn: () => G.leads += 500, repeat: true, pos: { x: 0, z: -10 } },
     { id: 'vip', name: 'VIP Leads', icon: '⭐', desc: '+100 VIP leads', long: 'Pre-qualified and ready to buy. 25% contact rate!', cost: 600, cat: 'leads', fn: () => G.leads += 100, repeat: true, pos: { x: 4, z: -10 } },
-    { id: 'hire', name: 'Hire Agent', icon: '👤', desc: 'Recruit new rep', long: 'More agents = more calls = more sales!', cost: 200, cat: 'hire', fn: hireAgent, repeat: true, mult: 1.4, pos: { x: 8, z: -10 } },
+    { id: 'hire', name: 'Hire Agent', icon: '👤', desc: 'Recruit new rep', long: 'More agents = more calls = more sales! Each costs $40/day wages.', cost: 200, cat: 'hire', fn: hireAgent, repeat: true, mult: 1.4, pos: { x: 8, z: -10 } },
 
-    // ROW 2 (z=-14): TRAINING & TECH - Improve agent performance
+    // ROW 2 (z=-14): TRAINING & TECH
     { id: 'script', name: 'Script Training', icon: '📝', desc: '+5% conversion', long: 'Better scripts = more closes. Each level +5%.', cost: 150, cat: 'train', max: 5, mult: 1.7, pos: { x: -8, z: -14 } },
     { id: 'local', name: 'Local Presence', icon: '📍', desc: '+8% answer rate', long: 'Local area codes get answered more!', cost: 300, cat: 'rep', max: 3, mult: 1.8, pos: { x: -4, z: -14 } },
     { id: 'power', name: 'Power Dialer', icon: '⚡', desc: '2x dial speed', long: 'Auto-dial next lead. Doubles your speed!', cost: 500, cat: 'tech', max: 1, pos: { x: 0, z: -14 } },
     { id: 'predict', name: 'Predictive Dialer', icon: '🤖', desc: 'AI dialing +40%', long: 'AI pre-dials leads. +40% efficiency!', cost: 1500, cat: 'tech', max: 1, pos: { x: 4, z: -14 } },
-    { id: 'analytics', name: 'Analytics', icon: '📈', desc: 'Better insights', long: 'Data-driven optimization of call times.', cost: 600, cat: 'tech', max: 2, mult: 1.7, pos: { x: 8, z: -14 } },
+    { id: 'crm', name: 'CRM System', icon: '💻', desc: '+15% conversion', long: 'Track prospects for better follow-ups.', cost: 1000, cat: 'tech', max: 3, mult: 1.5, pos: { x: 8, z: -14 } },
 
-    // ROW 3 (z=-18): FACILITIES - Office improvements
+    // ROW 3 (z=-18): FACILITIES
     { id: 'coffee', name: 'Coffee Machine', icon: '☕', desc: 'Slower energy drain', long: 'Caffeine keeps agents working longer!', cost: 300, cat: 'fac', max: 1, fn: spawnCoffeeMachine, pos: { x: -8, z: -18 } },
     { id: 'ergo', name: 'Ergo Chairs', icon: '🪑', desc: '-20% energy drain', long: 'Comfortable chairs = happier agents.', cost: 400, cat: 'fac', max: 2, mult: 1.6, fn: upgradeChairs, pos: { x: -4, z: -18 } },
     { id: 'break', name: 'Break Room', icon: '🛋️', desc: '+25% energy regen', long: 'Agents recover faster during breaks.', cost: 500, cat: 'fac', max: 2, mult: 1.6, pos: { x: 0, z: -18 } },
-    { id: 'crm', name: 'CRM System', icon: '💻', desc: '+15% conversion', long: 'Track prospects for better follow-ups.', cost: 1000, cat: 'tech', max: 3, mult: 1.5, pos: { x: 4, z: -18 } },
-    { id: 'autodialer', name: 'Auto-Dialer', icon: '🔄', desc: '3x dial speed', long: 'Fully automated dialing. Triples speed!', cost: 2500, cat: 'tech', max: 1, pos: { x: 8, z: -18 } },
+    { id: 'snack', name: 'Snack Bar', icon: '🍕', desc: '+morale boost', long: 'Free snacks keep agents happy! +0.3 morale/min per level.', cost: 400, cat: 'fac', max: 3, mult: 1.4, pos: { x: 4, z: -18 } },
+    { id: 'noise', name: 'Noise Cancelling', icon: '🔇', desc: '-15% energy drain', long: 'Noise-cancelling headsets reduce stress and fatigue.', cost: 600, cat: 'fac', max: 2, mult: 1.5, pos: { x: 8, z: -18 } },
 
-    // ROW 4 (z=-22): MANAGEMENT & COMPLIANCE - Quality and bonuses
-    { id: 'qa', name: 'QA Team', icon: '🎧', desc: '+10 reputation', long: 'Monitors calls. +10 rep per level.', cost: 800, cat: 'comp', max: 2, mult: 1.8, fn: () => G.reputation = Math.min(100, G.reputation + 10), pos: { x: -6, z: -22 } },
-    { id: 'bonus', name: 'Bonus System', icon: '💰', desc: '+10% sale value', long: 'Commissions motivate bigger closes.', cost: 750, cat: 'mgmt', max: 3, mult: 1.7, pos: { x: -2, z: -22 } },
-    { id: 'referral', name: 'Referral Program', icon: '🤝', desc: '+5 leads/day', long: 'Happy customers refer friends daily!', cost: 1200, cat: 'leads', max: 3, mult: 1.8, pos: { x: 2, z: -22 } },
-    { id: 'compliance', name: 'Compliance Suite', icon: '📜', desc: 'Prevent rep loss', long: 'Completely prevents reputation decay!', cost: 2000, cat: 'comp', max: 1, pos: { x: 6, z: -22 } }
+    // ROW 4 (z=-22): MANAGEMENT & COMPLIANCE
+    { id: 'qa', name: 'QA Team', icon: '🎧', desc: '+10 reputation', long: 'Monitors calls. +10 rep per level.', cost: 800, cat: 'comp', max: 2, mult: 1.8, fn: () => G.reputation = Math.min(100, G.reputation + 10), pos: { x: -8, z: -22 } },
+    { id: 'bonus', name: 'Bonus System', icon: '💰', desc: '+10% sale value', long: 'Commissions motivate bigger closes and happier agents.', cost: 750, cat: 'mgmt', max: 3, mult: 1.7, pos: { x: -4, z: -22 } },
+    { id: 'teamlead', name: 'Team Lead', icon: '👨‍💼', desc: '+10% agent speed', long: 'Team leads coach agents to work 10% faster per level.', cost: 1500, cat: 'mgmt', max: 3, mult: 1.8, pos: { x: 0, z: -22 } },
+    { id: 'overtime', name: 'Overtime Pay', icon: '⏰', desc: '+30min workday', long: 'Pay agents overtime to extend their shifts by 30 min per level.', cost: 800, cat: 'mgmt', max: 2, mult: 1.6, pos: { x: 4, z: -22 } },
+    { id: 'compliance', name: 'Compliance Suite', icon: '📜', desc: 'Prevent rep loss', long: 'Completely prevents reputation decay!', cost: 2000, cat: 'comp', max: 1, pos: { x: 8, z: -22 } },
+
+    // ROW 5 (z=-26): MARKETING
+    { id: 'billboard', name: 'Billboard', icon: '🪧', desc: '+3 leads/day', long: 'Passive outdoor advertising generates 3 leads per day.', cost: 2000, cat: 'mkt', max: 1, pos: { x: -8, z: -26 } },
+    { id: 'social', name: 'Social Media', icon: '📱', desc: 'Rep-based leads/day', long: 'Your reputation generates leads! More rep = more leads each day.', cost: 1500, cat: 'mkt', max: 3, mult: 1.8, pos: { x: -4, z: -26 } },
+    { id: 'emailcamp', name: 'Email Campaign', icon: '📧', desc: 'Agent-based leads/day', long: 'Each agent generates 2 extra leads per day per level.', cost: 800, cat: 'mkt', max: 3, mult: 1.5, pos: { x: 0, z: -26 } },
+    { id: 'webinar', name: 'Webinar', icon: '🎓', desc: '+200 leads + 5/day', long: 'Host a webinar: get 200 leads NOW + 5 passive leads per day.', cost: 2500, cat: 'mkt', max: 2, mult: 2.0, fn: webinarLeads, pos: { x: 4, z: -26 } },
+    { id: 'referral', name: 'Referral Program', icon: '🤝', desc: '+5 leads/day', long: 'Happy customers refer friends. +5 auto leads per day per level.', cost: 1200, cat: 'mkt', max: 3, mult: 1.8, pos: { x: 8, z: -26 } },
+
+    // ROW 6 (z=-30): MORALE & EXPANSION
+    { id: 'pizza', name: 'Pizza Party', icon: '🍕', desc: '+30 morale NOW', long: 'Instant +30 morale boost to all agents! Great for emergencies.', cost: 300, cat: 'morale', fn: () => boostAllMorale(30), repeat: true, mult: 1.3, pos: { x: -8, z: -30 } },
+    { id: 'outing', name: 'Team Outing', icon: '🎉', desc: '+50 morale NOW', long: 'Take the team out! Massive +50 morale boost to everyone.', cost: 1000, cat: 'morale', fn: () => boostAllMorale(50), repeat: true, mult: 1.5, pos: { x: -4, z: -30 } },
+    { id: 'gamify', name: 'Gamification', icon: '🏆', desc: '+morale/min', long: 'Leaderboards and prizes boost morale by +0.5/min per level.', cost: 1800, cat: 'morale', max: 2, mult: 1.8, pos: { x: 0, z: -30 } },
+    { id: 'wellness', name: 'Wellness Program', icon: '🧘', desc: '-30% morale decay', long: 'Yoga and meditation programs reduce morale decay by 30% per level.', cost: 1500, cat: 'morale', max: 2, mult: 1.5, pos: { x: 4, z: -30 } },
+    { id: 'nightshift', name: 'Night Shift', icon: '🌙', desc: 'Work til 10pm!', long: 'Unlock night shift operations. Extends workday by 4 hours!', cost: 5000, cat: 'morale', max: 1, pos: { x: 8, z: -30 } }
 ];
 
-const COLORS = { leads: 0xf59e0b, hire: 0x3b82f6, train: 0x22c55e, rep: 0xa855f7, tech: 0x00e5c7, fac: 0xec4899, mgmt: 0x6366f1, comp: 0x8b5cf6 };
+const COLORS = { leads: 0xf59e0b, hire: 0x3b82f6, train: 0x22c55e, rep: 0xa855f7, tech: 0x00e5c7, fac: 0xec4899, mgmt: 0x6366f1, comp: 0x8b5cf6, mkt: 0xff6b35, morale: 0x10b981 };
 
 
 // ==================== THREE.JS SETUP ====================
@@ -634,7 +663,7 @@ function createEnvironment() {
     const tileMat1 = new THREE.MeshStandardMaterial({ color: 0x6b7280, roughness: 0.95 });
     const tileMat2 = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.95 });
     for (let x = -18; x <= 18; x += 4) {
-        for (let z = -22; z <= 18; z += 4) {
+        for (let z = -34; z <= 18; z += 4) {
             const tile = new THREE.Mesh(tileGeo, (x + z) % 8 === 0 ? tileMat1 : tileMat2);
             tile.rotation.x = -Math.PI / 2;
             tile.position.set(x, 0.01, z);
@@ -657,18 +686,18 @@ function createEnvironment() {
 
     // Back wall with accent stripe
     const back = new THREE.Mesh(new THREE.BoxGeometry(60, 12, 0.5), wallMat);
-    back.position.set(0, 6, -28);
+    back.position.set(0, 6, -36);
     back.castShadow = back.receiveShadow = true;
     scene.add(back);
 
     const accentStripe = new THREE.Mesh(new THREE.BoxGeometry(60, 0.8, 0.1), accentMat);
-    accentStripe.position.set(0, 10, -27.6);
+    accentStripe.position.set(0, 10, -35.6);
     scene.add(accentStripe);
 
     // Side walls
     [-28, 28].forEach(x => {
-        const side = new THREE.Mesh(new THREE.BoxGeometry(0.5, 12, 60), wallMat);
-        side.position.set(x, 6, -5);
+        const side = new THREE.Mesh(new THREE.BoxGeometry(0.5, 12, 70), wallMat);
+        side.position.set(x, 6, -8);
         side.castShadow = side.receiveShadow = true;
         scene.add(side);
     });
@@ -683,13 +712,13 @@ function createEnvironment() {
     });
     for (let i = -2; i <= 2; i++) {
         const win = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), glassMat);
-        win.position.set(i * 11, 6, -27.7);
+        win.position.set(i * 11, 6, -35.7);
         scene.add(win);
 
         // Window frame
         const frameMat = new THREE.MeshStandardMaterial({ color: 0x374151 });
         const frameH = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.2, 0.15), frameMat);
-        frameH.position.set(i * 11, 10, -27.6);
+        frameH.position.set(i * 11, 10, -35.6);
         scene.add(frameH);
         const frameH2 = frameH.clone();
         frameH2.position.y = 2;
@@ -1094,6 +1123,20 @@ function createAgent(desk) {
     barFill.position.set(0, 1.95, 0.01);
     g.add(barFill);
 
+    // === MORALE EMOJI ===
+    const moraleCanvas = document.createElement('canvas');
+    moraleCanvas.width = 64;
+    moraleCanvas.height = 64;
+    const moraleCtx = moraleCanvas.getContext('2d');
+    moraleCtx.font = '48px sans-serif';
+    moraleCtx.fillText('🙂', 8, 48);
+    const moraleTex = new THREE.CanvasTexture(moraleCanvas);
+    const moraleSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: moraleTex, transparent: true }));
+    moraleSprite.scale.set(0.4, 0.4, 1);
+    moraleSprite.position.set(0.3, 1.7, 0);
+    moraleSprite.visible = false; // Hidden until morale drops below 80
+    g.add(moraleSprite);
+
     g.position.copy(desk.position);
     g.position.z += 0.75;
     scene.add(g);
@@ -1102,8 +1145,12 @@ function createAgent(desk) {
         mesh: g,
         desk,
         state: 'working', // entering, working, tired, sleeping, idle
-        energy: 50 + Math.random() * 50, // Random 50-100 so agents get tired at different times
-        drainRate: 0.7 + Math.random() * 0.6, // Random 0.7-1.3 multiplier for energy drain speed
+        energy: 50 + Math.random() * 50,
+        drainRate: 0.7 + Math.random() * 0.6,
+        morale: 70, // 0-100 morale system
+        moraleSprite,
+        moraleCanvas,
+        lastMoraleEmoji: '🙂',
         zzz,
         body,
         barFill,
@@ -1329,10 +1376,20 @@ function simMinute() {
     if (G.minute >= 60) {
         G.minute = 0;
         G.hour++;
-        if (G.hour >= 18) endDay();
+        // Workday ends at 18 (6pm) by default, extended by overtime (+30min each) and nightshift (+4hrs)
+        let endHour = 18;
+        const overtimeLvl = G.upgrades.overtime || 0;
+        // Each overtime level adds 30 min, but we track in hours
+        endHour += overtimeLvl * 0.5;
+        if (G.upgrades.nightshift) endHour = 22; // Night shift overrides to 10pm
+        // endDay when we hit the end hour (account for fractional hours via minute check)
+        if (G.hour >= Math.ceil(endHour)) endDay();
     }
 
-    if (G.hour >= 9 && G.hour < 18) {
+    // Work hours: 9am to end of shift
+    let endHour = 18 + (G.upgrades.overtime || 0) * 0.5;
+    if (G.upgrades.nightshift) endHour = 22;
+    if (G.hour >= 9 && G.hour < Math.ceil(endHour)) {
         simCalls();
     }
 
@@ -1342,26 +1399,40 @@ function simMinute() {
 function simCalls() {
     const dialerMult = G.upgrades.power ? 2 : 1;
     const predMult = G.upgrades.predict ? 1.4 : 1;
+    const teamLeadMult = 1 + (G.upgrades.teamlead || 0) * 0.1; // +10% speed per team lead level
+
+    // Agents to remove (quit from morale)
+    const agentsToRemove = [];
 
     G.agents.forEach(a => {
-        if (a.state !== 'working' && a.state !== 'tired') return;
+        if (a.state !== 'working' && a.state !== 'tired') {
+            // Sleeping agents still lose morale
+            if (a.state === 'sleeping') {
+                a.morale = Math.max(0, a.morale - 0.15);
+            }
+            return;
+        }
 
         // Determine if using warm leads or cold calling
         const hasLeads = G.leads > 0;
-        const callType = hasLeads ? 'warm' : 'cold';
 
-        const prodMult = a.state === 'tired' ? 0.6 : 1;
-        const calls = 0.35 * dialerMult * predMult * prodMult;
+        // Morale productivity modifier
+        let moraleMult = 1;
+        if (a.morale > 80) moraleMult = 1.15; // Happy bonus
+        else if (a.morale < 40) moraleMult = 0.7; // Unhappy penalty
+        else if (a.morale < 20) moraleMult = 0.4; // Very unhappy
+
+        const prodMult = (a.state === 'tired' ? 0.6 : 1) * moraleMult;
+        const calls = 0.35 * dialerMult * predMult * prodMult * teamLeadMult;
 
         for (let i = 0; i < calls; i++) {
-            // Use a lead if available, otherwise cold call
             if (hasLeads && G.leads > 0) {
                 G.leads--;
             }
             G.dials++;
-            G.costs += hasLeads ? 0.04 : 0.02; // Cold calls cost less (no lead cost)
+            G.costs += hasLeads ? 0.04 : 0.02;
 
-            // Contact rate: warm leads = 17%+, cold calls = 5%
+            // Contact rate
             const baseContactRate = hasLeads ? 0.17 : 0.05;
             const localBonus = (G.upgrades.local || 0) * 0.08;
             const repBonus = (G.reputation - 50) / 250;
@@ -1369,19 +1440,25 @@ function simCalls() {
             if (Math.random() < baseContactRate + localBonus + repBonus) {
                 G.contacts++;
 
-                // Conversion rate: warm leads = 7%+, cold calls = 3%
+                // Conversion rate with CRM bonus
                 const baseConversion = hasLeads ? 0.07 : 0.03;
                 const scriptBonus = (G.upgrades.script || 0) * 0.05;
+                const crmBonus = (G.upgrades.crm || 0) * 0.03; // +3% per CRM level
 
-                if (Math.random() < baseConversion + scriptBonus) {
-                    // Cold call sales are smaller
+                if (Math.random() < baseConversion + scriptBonus + crmBonus) {
                     const baseSale = hasLeads ? (70 + Math.random() * 80) : (40 + Math.random() * 50);
-                    const sale = baseSale;
+                    const bonusMult = 1 + (G.upgrades.bonus || 0) * 0.1; // +10% per bonus level
+                    const brandMult = G.upgrades.brand ? 2 : 1; // Brand manager doubles rep gains
+                    const sale = baseSale * bonusMult;
                     G.cash += sale;
                     G.conversions++;
                     G.revenue += sale;
                     G.totalRevenue += sale;
                     G.totalSales++;
+                    // Rep gain from sales
+                    if (Math.random() < 0.05 * brandMult) {
+                        G.reputation = Math.min(100, G.reputation + 1);
+                    }
                     if (Math.random() < 0.25) {
                         playCashSound();
                         addActivity('💰', '+$' + Math.round(sale) + (hasLeads ? '' : ' (cold)'), 'success');
@@ -1391,12 +1468,13 @@ function simCalls() {
             }
         }
 
-        // Energy drain - cold calling is more tiring, each agent has unique drain rate
+        // Energy drain with noise cancelling
         const coffeeBonus = G.hasCoffee ? 0.7 : 1;
         const ergoBonus = 1 - (G.upgrades.ergo || 0) * 0.1;
-        const coldPenalty = hasLeads ? 1 : 1.3; // Cold calling drains 30% more energy
-        const agentDrain = a.drainRate || 1; // Individual agent variation
-        a.energy -= 0.4 * coffeeBonus * ergoBonus * coldPenalty * agentDrain;
+        const noiseBonus = 1 - (G.upgrades.noise || 0) * 0.15; // -15% per noise cancelling level
+        const coldPenalty = hasLeads ? 1 : 1.3;
+        const agentDrain = a.drainRate || 1;
+        a.energy -= 0.4 * coffeeBonus * ergoBonus * noiseBonus * coldPenalty * agentDrain;
 
         if (a.energy <= 30 && a.state === 'working') {
             a.state = 'tired';
@@ -1408,11 +1486,48 @@ function simCalls() {
             if (a.zzz) a.zzz.visible = true;
             if (a.body) a.body.material.color.setHex(0x6b7280);
             if (!sleepingAgent) sleepingAgent = a;
+            a.morale = Math.max(0, a.morale - 2); // Sleeping hurts morale
             addActivity('💤', 'Agent fell asleep!', 'warning');
+        }
+
+        // === MORALE DECAY & BOOST ===
+        // Base morale decay
+        const wellnessReduction = 1 - (G.upgrades.wellness || 0) * 0.3; // -30% decay per level
+        let moraleChange = -0.08 * wellnessReduction; // Base decay per sim tick
+
+        // Low cash stress
+        if (G.cash < 200) moraleChange -= 0.1;
+
+        // Cold calling stress
+        if (!hasLeads) moraleChange -= 0.05;
+
+        // Boost from upgrades
+        moraleChange += (G.upgrades.bonus || 0) * 0.03; // Bonus system helps morale
+        moraleChange += (G.upgrades.snack || 0) * 0.04; // Snack bar
+        moraleChange += (G.upgrades['break'] || 0) * 0.04; // Break room
+        moraleChange += (G.upgrades.gamify || 0) * 0.06; // Gamification
+
+        a.morale = Math.max(0, Math.min(100, a.morale + moraleChange));
+
+        // Agent QUITS at 0 morale!
+        if (a.morale <= 0 && Math.random() < 0.02) { // 2% chance per tick when at 0
+            agentsToRemove.push(a);
         }
     });
 
-    // Note: Agents no longer go idle when out of leads - they cold call instead
+    // Remove agents who quit
+    agentsToRemove.forEach(a => {
+        scene.remove(a.mesh);
+        const deskIdx = desks.indexOf(a.desk);
+        if (deskIdx > -1) {
+            scene.remove(a.desk);
+            desks.splice(deskIdx, 1);
+        }
+        G.agents.splice(G.agents.indexOf(a), 1);
+        G.agentsLost++;
+        playErrorSound();
+        addActivity('😡', 'An agent QUIT due to low morale!', 'error');
+    });
 }
 
 function endDay() {
@@ -1424,12 +1539,36 @@ function endDay() {
     G.cash -= wages;
     G.costs += wages;
 
+    // === AUTO-LEAD GENERATION ===
+    let autoLeads = 0;
+    // Referral program: +5 leads per level
+    const referralLeads = (G.upgrades.referral || 0) * 5;
+    if (referralLeads > 0) autoLeads += referralLeads;
+    // Billboard: +3 leads
+    if (G.upgrades.billboard) autoLeads += 3;
+    // Social media: rep/20 per level
+    const socialLeads = Math.floor((G.upgrades.social || 0) * (G.reputation / 20));
+    if (socialLeads > 0) autoLeads += socialLeads;
+    // Email campaign: agents * 2 per level
+    const emailLeads = (G.upgrades.emailcamp || 0) * G.agents.length * 2;
+    if (emailLeads > 0) autoLeads += emailLeads;
+    // Webinar ongoing: +5 per level
+    const webinarLeadsDaily = (G.upgrades.webinar || 0) * 5;
+    if (webinarLeadsDaily > 0) autoLeads += webinarLeadsDaily;
+
+    if (autoLeads > 0) {
+        G.leads += autoLeads;
+        addActivity('📨', `+${autoLeads} auto-leads from marketing!`, 'success');
+    }
+
     // Reset agents energy overnight
     G.agents.forEach(a => {
         a.energy = 100;
         a.state = 'working';
         a.zzz.visible = false;
         a.body.material.color.setHex(0xf59e0b);
+        // Overnight morale recovery
+        a.morale = Math.min(100, a.morale + 5);
     });
     sleepingAgent = null;
 
@@ -1437,9 +1576,9 @@ function endDay() {
     G.hour = 9;
     G.dials = G.contacts = G.conversions = G.revenue = G.costs = 0;
 
-    if (!G.upgrades.qa) {
+    if (!G.upgrades.qa && !G.upgrades.compliance) {
         G.reputation = Math.max(50, G.reputation - 1);
-        addActivity('⚠️', 'Reputation dropped! Get QA Team to prevent this.', 'warning');
+        addActivity('⚠️', 'Reputation dropped! Get QA Team or Compliance to prevent this.', 'warning');
     }
 
     // Milestone achievements
@@ -1509,13 +1648,34 @@ function updateAgent(a, dt) {
         const pct = Math.max(0, Math.min(1, a.energy / 100));
         a.barFill.scale.x = pct;
         a.barFill.position.x = -0.24 * (1 - pct);
-        // Color: green -> yellow -> red
         const r = pct < 0.5 ? 1 : 1 - (pct - 0.5) * 2;
         const g = pct > 0.5 ? 1 : pct * 2;
         a.barFill.material.color.setRGB(r, g, 0.2);
-        // Face camera
         a.barBg.quaternion.copy(camera.quaternion);
         a.barFill.quaternion.copy(camera.quaternion);
+    }
+
+    // === MORALE VISUAL ===
+    if (a.moraleSprite) {
+        let emoji = '😊';
+        if (a.morale > 80) emoji = '😊';
+        else if (a.morale > 60) { emoji = '🙂'; a.moraleSprite.visible = true; }
+        else if (a.morale > 40) { emoji = '😐'; a.moraleSprite.visible = true; }
+        else if (a.morale > 20) { emoji = '😠'; a.moraleSprite.visible = true; }
+        else { emoji = '😡'; a.moraleSprite.visible = true; }
+
+        if (a.morale > 80) a.moraleSprite.visible = false;
+
+        if (emoji !== a.lastMoraleEmoji) {
+            a.lastMoraleEmoji = emoji;
+            const ctx = a.moraleCanvas.getContext('2d');
+            ctx.clearRect(0, 0, 64, 64);
+            ctx.font = '48px sans-serif';
+            ctx.fillText(emoji, 8, 48);
+            a.moraleSprite.material.map = new THREE.CanvasTexture(a.moraleCanvas);
+            a.moraleSprite.material.needsUpdate = true;
+        }
+        a.moraleSprite.quaternion.copy(camera.quaternion);
     }
 }
 
@@ -1581,7 +1741,7 @@ function updatePlayer() {
         dir.normalize().multiplyScalar(0.16);
         player.position.add(dir);
         player.position.x = Math.max(-20, Math.min(20, player.position.x));
-        player.position.z = Math.max(-23, Math.min(22, player.position.z));
+        player.position.z = Math.max(-33, Math.min(22, player.position.z));
 
         // Face movement direction
         player.rotation.y = Math.atan2(dir.x, dir.z);
@@ -1913,7 +2073,9 @@ function createCategorySigns() {
         { text: '📋 LEADS & HIRING', z: -10, color: 0xf59e0b },
         { text: '⚡ TRAINING & TECH', z: -14, color: 0x00e5c7 },
         { text: '🛋️ FACILITIES', z: -18, color: 0xec4899 },
-        { text: '🎧 MANAGEMENT', z: -22, color: 0x8b5cf6 }
+        { text: '🎧 MANAGEMENT', z: -22, color: 0x8b5cf6 },
+        { text: '📱 MARKETING', z: -26, color: 0xff6b35 },
+        { text: '😊 MORALE & EXPANSION', z: -30, color: 0x10b981 }
     ];
 
     signs.forEach(s => {
