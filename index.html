@@ -419,7 +419,47 @@
             padding: 12px;
             backdrop-filter: blur(10px);
             z-index: 100;
-            min-width: 160px
+            min-width: 160px;
+            max-width: 200px;
+            transition: transform 0.3s ease;
+        }
+
+        .metrics-bar.collapsed {
+            transform: translateX(calc(100% + 15px));
+        }
+
+        .metrics-toggle {
+            position: absolute;
+            left: -28px;
+            top: 10px;
+            width: 26px;
+            height: 26px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px 0 0 6px;
+            border-right: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 0.7rem;
+            transition: color 0.2s, background 0.2s;
+            z-index: 101;
+        }
+
+        .metrics-toggle:hover {
+            color: var(--accent);
+            background: var(--surface);
+        }
+
+        .metrics-toggle span {
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .metrics-bar.collapsed .metrics-toggle span {
+            transform: rotate(180deg);
         }
 
         .metrics-header {
@@ -1131,7 +1171,9 @@
             <button class="settings-respawn" id="btn-respawn">🔄 Respawn at Center</button>
         </div>
     </div>
-    <div class="metrics-bar">
+    <div class="metrics-bar" id="metrics-bar">
+        <div class="metrics-toggle" id="metrics-toggle"
+            onclick="document.getElementById('metrics-bar').classList.toggle('collapsed')"><span>▶</span></div>
         <div class="metrics-header">📊 Today's Stats</div>
         <div class="metric-row"><span class="metric-label">Dials</span><span class="metric-value"
                 id="metric-dials">0</span></div>
