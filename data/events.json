@@ -1,0 +1,311 @@
+{
+    "events": [
+        {
+            "id": "carrier_crackdown",
+            "name": "Carrier Crackdown",
+            "description": "Major carriers are flagging high-volume callers. Your spam tagging rate increases temporarily.",
+            "category": "negative",
+            "triggerConditions": {
+                "minDialsPerDay": 500,
+                "maxReputation": 60
+            },
+            "probability": 0.15,
+            "durationMinutes": 480,
+            "effects": [
+                {
+                    "type": "spam_rate_multiplier",
+                    "value": 1.5
+                }
+            ],
+            "narrative": "Breaking News: Major carriers announce crackdown on robocalls. Your caller IDs are getting flagged more frequently.",
+            "choices": [
+                {
+                    "text": "Reduce dialing volume (50% throughput for duration)",
+                    "effects": [
+                        {
+                            "type": "dial_rate_multiplier",
+                            "value": 0.5
+                        }
+                    ],
+                    "cost": 0
+                },
+                {
+                    "text": "Pay for premium caller ID verification ($500)",
+                    "effects": [
+                        {
+                            "type": "spam_rate_multiplier",
+                            "value": 0.8
+                        }
+                    ],
+                    "cost": 500
+                },
+                {
+                    "text": "Power through it",
+                    "effects": [],
+                    "cost": 0
+                }
+            ]
+        },
+        {
+            "id": "new_competitor",
+            "name": "New Competitor",
+            "description": "A well-funded competitor enters your market with aggressive pricing.",
+            "category": "negative",
+            "triggerConditions": {
+                "minRevenue": 5000
+            },
+            "probability": 0.10,
+            "durationMinutes": 1440,
+            "effects": [
+                {
+                    "type": "conversion_multiplier",
+                    "value": 0.85
+                }
+            ],
+            "narrative": "Industry Alert: A new call center has opened in your market with rock-bottom prices. Leads are harder to close.",
+            "choices": [
+                {
+                    "text": "Invest in script improvements ($300)",
+                    "effects": [
+                        {
+                            "type": "conversion_multiplier",
+                            "value": 1.0
+                        }
+                    ],
+                    "cost": 300
+                },
+                {
+                    "text": "Offer special promotions (revenue -15%)",
+                    "effects": [
+                        {
+                            "type": "revenue_multiplier",
+                            "value": 0.85
+                        },
+                        {
+                            "type": "conversion_multiplier",
+                            "value": 1.1
+                        }
+                    ],
+                    "cost": 0
+                },
+                {
+                    "text": "Wait it out",
+                    "effects": [],
+                    "cost": 0
+                }
+            ]
+        },
+        {
+            "id": "big_lead_drop",
+            "name": "Bulk Lead Opportunity",
+            "description": "A lead vendor is offloading a large batch at steep discount. Quality is questionable.",
+            "category": "opportunity",
+            "triggerConditions": {},
+            "probability": 0.12,
+            "durationMinutes": 60,
+            "effects": [],
+            "narrative": "Hot Deal: A lead vendor has 500 leads available at 70% off! The source is... less than reputable.",
+            "choices": [
+                {
+                    "text": "Buy the leads ($175 for 500, high compliance risk)",
+                    "effects": [
+                        {
+                            "type": "add_leads",
+                            "value": 500,
+                            "complianceRisk": 0.30
+                        }
+                    ],
+                    "cost": 175
+                },
+                {
+                    "text": "Pass on this one",
+                    "effects": [],
+                    "cost": 0
+                }
+            ]
+        },
+        {
+            "id": "star_agent_burnout",
+            "name": "Agent Burnout",
+            "description": "Your top performer is showing signs of burnout.",
+            "category": "negative",
+            "triggerConditions": {
+                "hasHighFatigueAgent": true
+            },
+            "probability": 0.20,
+            "durationMinutes": 240,
+            "effects": [
+                {
+                    "type": "agent_unavailable",
+                    "target": "top_performer"
+                }
+            ],
+            "narrative": "HR Alert: Your star agent has requested time off due to exhaustion. They need to recover.",
+            "choices": [
+                {
+                    "text": "Grant paid recovery time ($100)",
+                    "effects": [
+                        {
+                            "type": "agent_morale_boost",
+                            "value": 0.20
+                        }
+                    ],
+                    "cost": 100
+                },
+                {
+                    "text": "Mandatory break only",
+                    "effects": [
+                        {
+                            "type": "agent_morale_penalty",
+                            "value": -0.10
+                        }
+                    ],
+                    "cost": 0
+                }
+            ]
+        },
+        {
+            "id": "compliance_audit",
+            "name": "Compliance Audit",
+            "description": "Regulators are reviewing your calling practices.",
+            "category": "neutral",
+            "triggerConditions": {
+                "minDialsTotal": 10000
+            },
+            "probability": 0.08,
+            "durationMinutes": 120,
+            "effects": [
+                {
+                    "type": "dial_rate_multiplier",
+                    "value": 0.7
+                }
+            ],
+            "narrative": "Notice: Your operation is under compliance review. Dial rates are reduced during the audit.",
+            "choices": [
+                {
+                    "text": "Cooperate fully (potential reward if clean)",
+                    "effects": [],
+                    "cost": 0,
+                    "outcomeIfCompliant": {
+                        "type": "reputation_boost",
+                        "value": 10,
+                        "cash": 200
+                    }
+                },
+                {
+                    "text": "Hire compliance consultant ($400)",
+                    "effects": [
+                        {
+                            "type": "audit_success_boost",
+                            "value": 0.30
+                        }
+                    ],
+                    "cost": 400
+                }
+            ]
+        },
+        {
+            "id": "tech_outage",
+            "name": "System Outage",
+            "description": "Your dialer system experiences technical difficulties.",
+            "category": "negative",
+            "triggerConditions": {},
+            "probability": 0.05,
+            "durationMinutes": 30,
+            "effects": [
+                {
+                    "type": "dial_rate_multiplier",
+                    "value": 0
+                }
+            ],
+            "narrative": "System Alert: Dialer connectivity lost. Engineers are working on the issue.",
+            "choices": [
+                {
+                    "text": "Wait for resolution",
+                    "effects": [],
+                    "cost": 0
+                },
+                {
+                    "text": "Emergency IT support ($150, faster fix)",
+                    "effects": [
+                        {
+                            "type": "reduce_duration",
+                            "value": 0.5
+                        }
+                    ],
+                    "cost": 150
+                }
+            ]
+        },
+        {
+            "id": "viral_review",
+            "name": "Viral Customer Review",
+            "description": "A satisfied customer posted a glowing review that went viral!",
+            "category": "positive",
+            "triggerConditions": {
+                "minConversions": 100
+            },
+            "probability": 0.08,
+            "durationMinutes": 480,
+            "effects": [
+                {
+                    "type": "conversion_multiplier",
+                    "value": 1.15
+                },
+                {
+                    "type": "reputation_boost",
+                    "value": 5
+                }
+            ],
+            "narrative": "Great News: A happy customer's review is trending! Your reputation is soaring and leads are easier to close.",
+            "choices": [
+                {
+                    "text": "Capitalize with bonus follow-ups",
+                    "effects": [],
+                    "cost": 0
+                }
+            ]
+        },
+        {
+            "id": "training_opportunity",
+            "name": "Industry Conference",
+            "description": "A top sales trainer is offering a workshop in your area.",
+            "category": "opportunity",
+            "triggerConditions": {
+                "minAgents": 3
+            },
+            "probability": 0.10,
+            "durationMinutes": 120,
+            "effects": [],
+            "narrative": "Opportunity: Industry-renowned trainer offering a 2-hour intensive workshop. Agents will be unavailable but gain skills.",
+            "choices": [
+                {
+                    "text": "Send all agents ($50/agent)",
+                    "effects": [
+                        {
+                            "type": "global_skill_boost",
+                            "value": 0.05
+                        }
+                    ],
+                    "costPerAgent": 50
+                },
+                {
+                    "text": "Send top half of agents",
+                    "effects": [
+                        {
+                            "type": "top_agents_skill_boost",
+                            "value": 0.08
+                        }
+                    ],
+                    "costPerAgent": 50,
+                    "targetCount": "half"
+                },
+                {
+                    "text": "Skip it",
+                    "effects": [],
+                    "cost": 0
+                }
+            ]
+        }
+    ]
+}

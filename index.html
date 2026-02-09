@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Center Tycoon 3D</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: rgba(13, 17, 23, 0.95);
+            --accent: #00e5c7;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --blue: #3b82f6;
+            --text: #f0f6fc;
+            --muted: #8b949e;
+            --border: #30363d
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        #canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0
+        }
+
+        .hud-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            pointer-events: none;
+            z-index: 100
+        }
+
+        .hud-section {
+            display: flex;
+            gap: 10px;
+            pointer-events: auto
+        }
+
+        .hud-stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 16px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            min-width: 90px
+        }
+
+        .hud-stat:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px)
+        }
+
+        .hud-stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .hud-stat-label {
+            font-size: 0.6rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 2px
+        }
+
+        .hud-stat.cash .hud-stat-value {
+            color: var(--success)
+        }
+
+        .hud-stat.agents .hud-stat-value {
+            color: var(--blue)
+        }
+
+        .hud-stat.leads .hud-stat-value {
+            color: var(--warning)
+        }
+
+        .hud-center {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card);
+            border: 1px solid var(--accent);
+            border-radius: 14px;
+            padding: 10px 24px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            box-shadow: 0 0 25px rgba(0, 229, 199, 0.15)
+        }
+
+        .hud-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.05em
+        }
+
+        .hud-time {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1
+        }
+
+        .hud-day {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 3px
+        }
+
+        .hud-day .status {
+            color: var(--success);
+            font-weight: 600
+        }
+
+        .hud-day .paused {
+            color: var(--warning)
+        }
+
+        .interaction-prompt {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.95);
+            background: var(--card);
+            border: 2px solid var(--warning);
+            border-radius: 14px;
+            padding: 18px 28px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+            min-width: 260px
+        }
+
+        .interaction-prompt.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) scale(1)
+        }
+
+        .interaction-prompt.cant-afford {
+            border-color: var(--danger);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2)
+        }
+
+        .interaction-prompt.wake {
+            border-color: var(--blue);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.2)
+        }
+
+        .prompt-icon {
+            font-size: 1.8rem;
+            margin-bottom: 6px
+        }
+
+        .prompt-title {
+            color: var(--warning);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px
+        }
+
+        .prompt-desc {
+            color: var(--warning);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px
+        }
+
+        .prompt-long {
+            color: var(--muted);
+            font-size: 0.75rem;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            border-left: 2px solid var(--accent);
+        }
+
+        .prompt-cost {
+            font-size: 1rem;
+            color: var(--success);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .cant-afford .prompt-cost {
+            color: var(--danger)
+        }
+
+        .prompt-key {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg);
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            margin-top: 10px;
+            font-size: 0.8rem
+        }
+
+        .prompt-level {
+            font-size: 0.65rem;
+            color: var(--muted);
+            margin-top: 6px
+        }
+
+        .activity-feed {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            width: 300px;
+            max-height: 200px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            overflow: hidden
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .activity-header h4 {
+            color: var(--accent);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600
+        }
+
+        .activity-list {
+            max-height: 150px;
+            overflow-y: auto
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+            animation: slideIn 0.3s ease
+        }
+
+        .activity-item:last-child {
+            border-bottom: none
+        }
+
+        .activity-icon {
+            font-size: 0.9rem;
+            flex-shrink: 0
+        }
+
+        .activity-text {
+            color: var(--muted);
+            font-size: 0.7rem;
+            line-height: 1.3
+        }
+
+        .activity-text.success {
+            color: var(--success)
+        }
+
+        .activity-text.warning {
+            color: var(--warning)
+        }
+
+        .activity-text.error {
+            color: var(--danger)
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-15px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        .controls-panel {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
+            z-index: 100
+        }
+
+        .controls-header {
+            color: var(--accent);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .control-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+            align-items: center
+        }
+
+        .key-badge {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            min-width: 45px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .key-desc {
+            color: var(--muted);
+            font-size: 0.65rem
+        }
+
+        .speed-indicator {
+            position: fixed;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 6px 16px;
+            display: flex;
+            gap: 6px;
+            backdrop-filter: blur(10px);
+            z-index: 100
+        }
+
+        .speed-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease
+        }
+
+        .speed-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent)
+        }
+
+        .speed-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg)
+        }
+
+        .metrics-bar {
+            position: fixed;
+            top: 70px;
+            right: 15px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            min-width: 160px
+        }
+
+        .metrics-header {
+            color: var(--accent);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            margin-bottom: 8px
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(48, 54, 61, 0.3)
+        }
+
+        .metric-row:last-child {
+            border-bottom: none
+        }
+
+        .metric-label {
+            color: var(--muted);
+            font-size: 0.65rem
+        }
+
+        .metric-value {
+            color: var(--text);
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .metric-value.positive {
+            color: var(--success)
+        }
+
+        .metric-value.warning {
+            color: var(--warning)
+        }
+
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--bg) 0%, #161b22 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.6s ease, visibility 0.6s ease
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none
+        }
+
+        .loading-logo {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: float 2s ease-in-out infinite
+        }
+
+        .loading-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 6px;
+            text-shadow: 0 0 25px rgba(0, 229, 199, 0.3)
+        }
+
+        .loading-subtitle {
+            color: var(--muted);
+            margin-bottom: 30px;
+            font-size: 0.9rem
+        }
+
+        .loading-bar {
+            width: 280px;
+            height: 6px;
+            background: #161b22;
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid var(--border)
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--blue));
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease
+        }
+
+        .loading-tip {
+            margin-top: 25px;
+            color: var(--muted);
+            font-size: 0.8rem;
+            max-width: 350px;
+            text-align: center
+        }
+
+        .loading-tip strong {
+            color: var(--accent)
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-5deg)
+            }
+
+            50% {
+                transform: translateY(-12px) rotate(5deg)
+            }
+        }
+
+        .money-popup {
+            position: fixed;
+            pointer-events: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--success);
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+            z-index: 200;
+            animation: moneyFloat 1.5s ease-out forwards
+        }
+
+        @keyframes moneyFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(1.2)
+            }
+        }
+
+        /* Start Menu */
+        .start-menu {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--bg) 0%, #161b22 50%, #0d1117 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .start-menu.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .start-logo {
+            font-size: 5rem;
+            margin-bottom: 10px;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .start-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+            text-shadow: 0 0 30px rgba(0, 229, 199, 0.4);
+        }
+
+        .start-subtitle {
+            color: var(--muted);
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+
+        .start-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, rgba(0, 229, 199, 0.15), rgba(13, 17, 23, 0.9));
+            border: 2px solid var(--accent);
+            color: var(--text);
+            padding: 18px 50px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .start-btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 229, 199, 0.4);
+        }
+
+        .start-btn.secondary {
+            border-color: var(--border);
+            background: var(--card);
+        }
+
+        .start-btn.secondary:hover {
+            border-color: var(--accent);
+            background: rgba(0, 229, 199, 0.1);
+            color: var(--text);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .start-btn:disabled:hover {
+            transform: none;
+            background: var(--card);
+            color: var(--muted);
+        }
+
+        /* Tutorial */
+        .tutorial-overlay {
+            position: fixed;
+            bottom: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card);
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            padding: 20px 30px;
+            text-align: center;
+            z-index: 150;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 40px rgba(0, 229, 199, 0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tutorial-step {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .tutorial-message {
+            font-size: 1.1rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .tutorial-hint {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-top: 8px;
+        }
+
+        .tutorial-skip {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .tutorial-skip:hover {
+            color: var(--text);
+        }
+
+        /* Metrics enhancements */
+        .metrics-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 10px 0;
+        }
+
+        .upgrades-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .upgrade-badge {
+            background: rgba(0, 229, 199, 0.15);
+            border: 1px solid rgba(0, 229, 199, 0.3);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.65rem;
+            color: var(--accent);
+        }
+
+        .upgrade-badge.inactive {
+            background: rgba(139, 148, 158, 0.1);
+            border-color: rgba(139, 148, 158, 0.2);
+            color: var(--muted);
+        }
+
+        /* Settings */
+        .settings-container {
+            position: fixed;
+            top: 80px;
+            left: 25px;
+            z-index: 1000;
+        }
+
+        .settings-btn {
+            background: rgba(13, 17, 23, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .settings-btn:hover {
+            background: rgba(30, 40, 50, 0.95);
+            transform: scale(1.05);
+        }
+
+        .settings-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            background: rgba(13, 17, 23, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 14px 18px;
+            min-width: 180px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .settings-dropdown.visible {
+            display: block;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 0.9rem;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .settings-option:last-child {
+            border-bottom: none;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .settings-option input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        .settings-respawn {
+            width: 100%;
+            padding: 8px 12px;
+            margin-top: 10px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .settings-respawn:hover {
+            background: rgba(239, 68, 68, 0.4);
+            transform: scale(1.02);
+        }
+
+        /* HELP OVERLAY */
+        .help-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .help-overlay.visible {
+            display: flex;
+        }
+
+        .help-content {
+            background: var(--card);
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 229, 199, 0.2);
+        }
+
+        .help-content h1 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .help-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .help-close:hover {
+            color: var(--danger);
+        }
+
+        .help-sections {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .help-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .help-section h2 {
+            color: var(--warning);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .help-section p {
+            color: var(--text);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .help-grid,
+        .help-upgrades {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .help-milestones {
+            display: flex;
+            justify-content: space-around;
+            font-size: 1rem;
+            padding: 10px 0;
+        }
+
+        .help-milestones div {
+            padding: 8px 16px;
+            background: rgba(0, 229, 199, 0.1);
+            border-radius: 8px;
+            border: 1px solid var(--accent);
+        }
+
+        .help-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .help-footer .key-badge {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        @media (max-width: 800px) {
+            .help-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* HUD TOOLTIPS */
+        .hud-stat[title] {
+            cursor: help;
+        }
+
+        .hud-stat[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg);
+            border: 1px solid var(--accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+
+        /* Milestone Achievement Popup */
+        .milestone-popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .milestone-popup.visible {
+            opacity: 1;
+        }
+
+        .milestone-icon {
+            font-size: 5rem;
+            animation: bounce 0.8s ease infinite;
+        }
+
+        .milestone-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--warning);
+            margin: 20px 0 10px;
+            text-shadow: 0 0 30px var(--warning);
+        }
+
+        .milestone-subtitle {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .milestone-message {
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 30px;
+        }
+
+        .milestone-close {
+            background: linear-gradient(135deg, var(--accent), var(--blue));
+            border: none;
+            color: var(--bg);
+            font-weight: 700;
+            padding: 12px 40px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .milestone-close:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 229, 199, 0.5);
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Start Menu -->
+    <div class="start-menu" id="start-menu">
+        <div class="start-logo">📞</div>
+        <div class="start-title">Call Center Tycoon 3D</div>
+        <div class="start-subtitle">Build your outbound empire</div>
+        <div class="start-buttons">
+            <button class="start-btn" id="btn-continue" disabled>▶️ Continue</button>
+            <button class="start-btn secondary" id="btn-new-game">🆕 New Game</button>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div class="tutorial-overlay" id="tutorial-overlay">
+        <button class="tutorial-skip" id="tutorial-skip">Skip (ESC)</button>
+        <div class="tutorial-step" id="tutorial-step">Step 1 of 5</div>
+        <div class="tutorial-message" id="tutorial-message">Use WASD to move around!</div>
+        <div class="tutorial-hint" id="tutorial-hint">Try walking forward with W</div>
+    </div>
+
+    <div class="loading-screen hidden" id="loading-screen">
+        <div class="loading-logo">📞</div>
+        <div class="loading-title">Call Center Tycoon 3D</div>
+        <div class="loading-subtitle">Building your empire...</div>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loading-progress"></div>
+        </div>
+        <div class="loading-tip"><strong>TIP:</strong> Walk on pads with <strong>WASD</strong>, press <strong>E</strong>
+            to buy. Wake sleeping agents with <strong>F</strong>!</div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div class="hud-top">
+        <div class="hud-section">
+            <div class="hud-stat"
+                style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(13, 17, 23, 0.95)); border-color: #6366f1;">
+                <div class="hud-stat-value" id="hud-day-num" style="color: #a78bfa; font-size: 1.5rem;">1</div>
+                <div class="hud-stat-label">Day</div>
+            </div>
+            <div class="hud-stat cash" title="Money for purchasing upgrades">
+                <div class="hud-stat-value" id="hud-cash">$500</div>
+                <div class="hud-stat-label">Cash</div>
+            </div>
+            <div class="hud-stat agents" title="Your sales representatives making calls">
+                <div class="hud-stat-value" id="hud-agents">1</div>
+                <div class="hud-stat-label">Agents</div>
+            </div>
+            <div class="hud-stat leads" title="Warm prospects with 17% contact rate">
+                <div class="hud-stat-value" id="hud-leads">50</div>
+                <div class="hud-stat-label">Leads</div>
+            </div>
+            <div class="hud-stat" title="Higher reputation = more answers. Decays overnight without QA.">
+                <div class="hud-stat-value" id="hud-rep" style="color:var(--accent)">75</div>
+                <div class="hud-stat-label">Reputation</div>
+            </div>
+        </div>
+        <div class="hud-section">
+            <div class="hud-stat" title="Total sales made today">
+                <div class="hud-stat-value" id="hud-sales" style="color:var(--success)">0</div>
+                <div class="hud-stat-label">Sales</div>
+            </div>
+            <div class="hud-stat" title="Today's earnings before wages">
+                <div class="hud-stat-value" id="hud-revenue" style="color:var(--accent)">$0</div>
+                <div class="hud-stat-label">Revenue</div>
+            </div>
+        </div>
+    </div>
+    <div class="hud-center">
+        <div class="hud-title">📞 CALL CENTER TYCOON 3D</div>
+        <div class="hud-time" id="hud-time">09:00</div>
+        <div class="hud-day" id="hud-day">Day 1 • <span class="status">Active</span></div>
+    </div>
+    <div class="speed-indicator">
+        <button class="speed-btn active" data-speed="1">1x</button>
+        <button class="speed-btn" data-speed="2">2x</button>
+        <button class="speed-btn" data-speed="5">5x</button>
+        <button class="speed-btn" data-speed="10">10x</button>
+    </div>
+    <div class="settings-container">
+        <button class="settings-btn" id="settings-btn" title="Settings">⚙️</button>
+        <div class="settings-dropdown" id="settings-dropdown">
+            <label class="settings-option">
+                <input type="checkbox" id="toggle-sound" checked>
+                <span>🔊 Sound Effects</span>
+            </label>
+            <label class="settings-option">
+                <input type="checkbox" id="toggle-music" checked>
+                <span>🎵 Music</span>
+            </label>
+            <button class="settings-respawn" id="btn-respawn">🔄 Respawn at Center</button>
+        </div>
+    </div>
+    <div class="metrics-bar">
+        <div class="metrics-header">📊 Today's Stats</div>
+        <div class="metric-row"><span class="metric-label">Dials</span><span class="metric-value"
+                id="metric-dials">0</span></div>
+        <div class="metric-row"><span class="metric-label">Contacts</span><span class="metric-value"
+                id="metric-contacts">0</span></div>
+        <div class="metric-row"><span class="metric-label">Contact %</span><span class="metric-value"
+                id="metric-contact-rate">0%</span></div>
+        <div class="metric-row"><span class="metric-label">Close %</span><span class="metric-value"
+                id="metric-close-rate">0%</span></div>
+        <div class="metric-row"><span class="metric-label">Profit</span><span class="metric-value positive"
+                id="metric-profit">$0</span></div>
+        <div class="metrics-divider"></div>
+        <div class="metrics-header">🏆 Lifetime</div>
+        <div class="metric-row"><span class="metric-label">Total Sales</span><span class="metric-value"
+                id="metric-total-sales" style="color: var(--success)">0</span></div>
+        <div class="metric-row"><span class="metric-label">Total Revenue</span><span class="metric-value"
+                id="metric-total-revenue" style="color: var(--accent)">$0</span></div>
+        <div class="metrics-divider"></div>
+        <div class="metrics-header">⚡ Active Upgrades</div>
+        <div class="upgrades-list" id="upgrades-list">
+            <span class="upgrade-badge">None yet</span>
+        </div>
+    </div>
+    <div class="interaction-prompt" id="interaction-prompt">
+        <div class="prompt-icon" id="prompt-icon">📋</div>
+        <div class="prompt-title" id="prompt-title">Upgrade</div>
+        <div class="prompt-desc" id="prompt-desc">Description</div>
+        <div class="prompt-long" id="prompt-long">Detailed explanation about this upgrade and why you should buy it!
+        </div>
+        <div class="prompt-cost">Cost: <span id="prompt-cost">$100</span></div>
+        <div class="prompt-level" id="prompt-level"></div>
+        <div class="prompt-key" id="prompt-key">Press E to Buy</div>
+    </div>
+    <div class="activity-feed">
+        <div class="activity-header">
+            <h4>📊 Activity</h4>
+        </div>
+        <div class="activity-list" id="activity-list">
+            <div class="activity-item"><span class="activity-icon">🎮</span><span class="activity-text">Welcome! WASD to
+                    move, E to buy, F to wake agents.</span></div>
+        </div>
+    </div>
+    <div class="controls-panel">
+        <div class="controls-header">🎮 Controls</div>
+        <div class="control-row"><span class="key-badge">WASD</span><span class="key-desc">Move</span></div>
+        <div class="control-row"><span class="key-badge">E</span><span class="key-desc">Buy upgrade</span></div>
+        <div class="control-row"><span class="key-badge">F</span><span class="key-desc">Wake agent</span></div>
+        <div class="control-row"><span class="key-badge">SPACE</span><span class="key-desc">Pause</span></div>
+        <div class="control-row"><span class="key-badge">1-4</span><span class="key-desc">Speed</span></div>
+        <div class="control-row"><span class="key-badge">H</span><span class="key-desc">Help</span></div>
+    </div>
+
+    <!-- HELP OVERLAY -->
+    <div class="help-overlay" id="help-overlay">
+        <div class="help-content">
+            <button class="help-close" id="help-close">✕</button>
+            <h1>📞 Call Center Tycoon - Game Guide</h1>
+
+            <div class="help-sections">
+                <div class="help-section">
+                    <h2>🎯 Your Goal</h2>
+                    <p>Build a successful outbound call center! Hire agents, buy leads, and make sales to grow your
+                        empire.
+                        Reach <strong>Day 30</strong> with <strong>$10,000+</strong> to win!</p>
+                </div>
+
+                <div class="help-section">
+                    <h2>📊 Understanding the HUD</h2>
+                    <div class="help-grid">
+                        <div><strong>💵 Cash</strong> - Money for upgrades</div>
+                        <div><strong>👤 Agents</strong> - Your sales reps</div>
+                        <div><strong>📋 Leads</strong> - Warm prospects to call</div>
+                        <div><strong>⭐ Reputation</strong> - Higher = more answers</div>
+                        <div><strong>💰 Revenue</strong> - Today's earnings</div>
+                        <div><strong>🕐 Time</strong> - Work hours: 9AM-6PM</div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h2>👤 How Agents Work</h2>
+                    <p><strong>Orange</strong> = Working normally<br>
+                        <strong>Darker Orange</strong> = Tired (30% less productive)<br>
+                        <strong>Grey + Zzz</strong> = Sleeping (not working!)
+                    </p>
+                    <p>💡 Get a <strong>Supervisor</strong> to auto-wake sleeping agents, or press <strong>F</strong>
+                        near them to wake manually.</p>
+                </div>
+
+                <div class="help-section">
+                    <h2>📞 Leads vs Cold Calling</h2>
+                    <p><strong>Warm Leads (purchased):</strong><br>
+                        ✓ 17% contact rate<br>
+                        ✓ $70-150 per sale<br>
+                        ✓ Less tiring for agents</p>
+                    <p><strong>Cold Calling (no leads):</strong><br>
+                        ✗ 5% contact rate<br>
+                        ✗ $40-90 per sale<br>
+                        ✗ 30% more tiring</p>
+                </div>
+
+                <div class="help-section">
+                    <h2>🛒 Upgrades Overview</h2>
+                    <div class="help-upgrades">
+                        <div>📋 <strong>Leads</strong> - More prospects to call</div>
+                        <div>👤 <strong>Hire</strong> - More agents = more calls</div>
+                        <div>👔 <strong>Supervisor</strong> - Auto-wakes agents (FREE!)</div>
+                        <div>📝 <strong>Script</strong> - +5% conversion per level</div>
+                        <div>📍 <strong>Local Presence</strong> - +8% answer rate</div>
+                        <div>⚡ <strong>Power Dialer</strong> - 2x dial speed</div>
+                        <div>☕ <strong>Coffee</strong> - Slower energy drain</div>
+                        <div>🪑 <strong>Ergo Chairs</strong> - -20% energy drain</div>
+                        <div>🤖 <strong>Predictive</strong> - +40% efficiency</div>
+                        <div>🎧 <strong>QA Team</strong> - +10 reputation</div>
+                        <div>📈 <strong>Analytics</strong> - Better optimization</div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h2>🏆 Victory Milestones</h2>
+                    <div class="help-milestones">
+                        <div>🥉 Day 10 + $2,000</div>
+                        <div>🥈 Day 20 + $5,000</div>
+                        <div>🥇 Day 30 + $10,000</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="help-footer">Press <span class="key-badge">H</span> or <span class="key-badge">ESC</span> to
+                close</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>

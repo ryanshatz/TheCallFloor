@@ -1,0 +1,90 @@
+{
+    "dialers": [
+        {
+            "id": "manual",
+            "name": "Manual Dialer",
+            "description": "Basic click-to-dial. Agents manually select and dial each lead.",
+            "tier": 1,
+            "dialsPerMinutePerAgent": 4,
+            "connectRateMultiplier": 1.0,
+            "agentOccupancyTarget": 0.4,
+            "abandonmentRate": 0,
+            "qaAssistMultiplier": 1.0,
+            "ahtReductionFactor": 0,
+            "costPerAgentPerDay": 0,
+            "spamRiskMultiplier": 0.8,
+            "unlockCost": 0,
+            "prerequisites": []
+        },
+        {
+            "id": "power",
+            "name": "Power Dialer",
+            "description": "Automatically dials the next lead when agent becomes available. No predictive pacing.",
+            "tier": 2,
+            "dialsPerMinutePerAgent": 8,
+            "connectRateMultiplier": 1.0,
+            "agentOccupancyTarget": 0.55,
+            "abandonmentRate": 0,
+            "qaAssistMultiplier": 1.0,
+            "ahtReductionFactor": 0,
+            "costPerAgentPerDay": 15,
+            "spamRiskMultiplier": 1.0,
+            "unlockCost": 500,
+            "prerequisites": []
+        },
+        {
+            "id": "progressive",
+            "name": "Progressive Dialer",
+            "description": "Dials multiple lines per agent with smart pacing. Balances throughput with quality.",
+            "tier": 3,
+            "dialsPerMinutePerAgent": 12,
+            "connectRateMultiplier": 1.05,
+            "agentOccupancyTarget": 0.70,
+            "abandonmentRate": 0.02,
+            "qaAssistMultiplier": 1.0,
+            "ahtReductionFactor": 0,
+            "costPerAgentPerDay": 35,
+            "spamRiskMultiplier": 1.15,
+            "unlockCost": 2000,
+            "prerequisites": [
+                "power"
+            ]
+        },
+        {
+            "id": "predictive",
+            "name": "Predictive Dialer",
+            "description": "Uses algorithms to predict agent availability and dial ahead. Maximum throughput.",
+            "tier": 4,
+            "dialsPerMinutePerAgent": 20,
+            "connectRateMultiplier": 1.1,
+            "agentOccupancyTarget": 0.85,
+            "abandonmentRate": 0.05,
+            "qaAssistMultiplier": 1.0,
+            "ahtReductionFactor": 0.05,
+            "costPerAgentPerDay": 75,
+            "spamRiskMultiplier": 1.4,
+            "unlockCost": 8000,
+            "prerequisites": [
+                "progressive"
+            ]
+        },
+        {
+            "id": "ai_assisted",
+            "name": "AI-Assisted Dialer",
+            "description": "Next-gen dialer with real-time AI coaching, sentiment analysis, and smart routing.",
+            "tier": 5,
+            "dialsPerMinutePerAgent": 18,
+            "connectRateMultiplier": 1.2,
+            "agentOccupancyTarget": 0.80,
+            "abandonmentRate": 0.02,
+            "qaAssistMultiplier": 1.15,
+            "ahtReductionFactor": 0.15,
+            "costPerAgentPerDay": 150,
+            "spamRiskMultiplier": 1.1,
+            "unlockCost": 25000,
+            "prerequisites": [
+                "predictive"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Integration Tests - Call Center Tycoon</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0e14;
+            color: #f8fafc;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #00e5c7;
+            border-bottom: 2px solid #00e5c7;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            color: #94a3b8;
+            margin-top: 2rem;
+        }
+
+        .pass {
+            color: #22c55e;
+            padding: 0.4rem 0;
+            border-left: 3px solid #22c55e;
+            padding-left: 1rem;
+            margin: 0.3rem 0;
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .fail {
+            color: #ef4444;
+            padding: 0.4rem 0;
+            border-left: 3px solid #ef4444;
+            padding-left: 1rem;
+            margin: 0.3rem 0;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #00e5c7, #00c4aa);
+            color: #0a0e14;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 229, 199, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #151b23;
+            border-radius: 8px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-value.passed {
+            color: #22c55e;
+        }
+
+        .stat-value.failed {
+            color: #ef4444;
+        }
+
+        .stat-value.total {
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .loading {
+            color: #00e5c7;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Call Center Tycoon - Integration Tests</h1>
+    <p>Comprehensive tests for all game systems: Agents, Leads, Dialers, GameState, Formulas, Upgrades, and Simulation
+        Engine.</p>
+
+    <button onclick="runTests()">Run All Tests</button>
+
+    <div class="stats" id="stats" style="display: none;">
+        <div class="stat">
+            <div class="stat-value passed" id="stat-passed">0</div>
+            <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value failed" id="stat-failed">0</div>
+            <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value total" id="stat-total">0</div>
+            <div class="stat-label">Total</div>
+        </div>
+    </div>
+
+    <div id="results"></div>
+
+    <script type="module">
+        import { runTests } from './integration.test.js';
+
+        window.runTests = async function () {
+            document.getElementById('results').innerHTML = '<p class="loading">Running tests...</p>';
+            await runTests();
+
+            // Update stats display
+            const results = document.getElementById('results');
+            const passedCount = (results.innerHTML.match(/class="pass"/g) || []).length;
+            const failedCount = (results.innerHTML.match(/class="fail"/g) || []).length;
+
+            document.getElementById('stat-passed').textContent = passedCount;
+            document.getElementById('stat-failed').textContent = failedCount;
+            document.getElementById('stat-total').textContent = passedCount + failedCount;
+            document.getElementById('stats').style.display = 'flex';
+        };
+
+        // Auto-run on load
+        runTests();
+    </script>
+</body>
+
+</html>

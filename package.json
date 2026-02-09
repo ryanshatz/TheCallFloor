@@ -1,0 +1,18 @@
+{
+    "name": "call-center-tycoon",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "description": "Call Center Tycoon - Build your outbound call center empire",
+    "scripts": {
+        "test": "node tests/node-test.mjs",
+        "serve": "npx serve -p 8080"
+    },
+    "keywords": [
+        "game",
+        "simulation",
+        "tycoon",
+        "call-center"
+    ],
+    "license": "MIT"
+}

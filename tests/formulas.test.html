@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Formula Tests - Call Center Tycoon</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 { color: #4ecca3; }
+        h2 { color: #ddd; margin-top: 2rem; }
+        .pass {
+            color: #4ecca3;
+            padding: 0.3rem 0;
+            border-left: 3px solid #4ecca3;
+            padding-left: 1rem;
+            margin: 0.3rem 0;
+        }
+        .fail {
+            color: #ff6b6b;
+            padding: 0.3rem 0;
+            border-left: 3px solid #ff6b6b;
+            padding-left: 1rem;
+            margin: 0.3rem 0;
+            background: rgba(255, 107, 107, 0.1);
+        }
+        button {
+            background: #4ecca3;
+            color: #1a1a2e;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background: #3db892;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Call Center Tycoon - Formula Tests</h1>
+    <button onclick="runTests()">Run Tests</button>
+    <div id="results"></div>
+    
+    <script type="module">
+        import { runTests } from './formulas.test.js';
+        window.runTests = runTests;
+        // Auto-run on load
+        runTests();
+    </script>
+</body>
+</html>

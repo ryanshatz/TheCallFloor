@@ -1,0 +1,81 @@
+{
+  "game": {
+    "tickIntervalMs": 1000,
+    "ticksPerGameMinute": 1,
+    "startingCash": 500,
+    "startingLeads": 50,
+    "workdayStartHour": 9,
+    "workdayEndHour": 17,
+    "breakDurationMinutes": 15,
+    "breakFrequencyMinutes": 120
+  },
+  "agent": {
+    "baseStats": {
+      "skillTalktrack": 0.40,
+      "speedWrapup": 0.40,
+      "complianceDiscipline": 0.50,
+      "resilience": 0.50,
+      "charisma": 0.30,
+      "consistency": 0.40
+    },
+    "statVariance": 0.15,
+    "baseWagePerHour": 18,
+    "baseFatigueRecoveryPerMinute": 0.02,
+    "baseFatigueGainPerCallMinute": 0.01,
+    "maxFatigue": 1.0,
+    "fatigueThresholdWarning": 0.7,
+    "fatigueThresholdCritical": 0.9,
+    "baseAHTSeconds": 180,
+    "baseWrapUpSeconds": 45
+  },
+  "call": {
+    "baseAnswerProbability": 0.18,
+    "baseConversionProbability": 0.07,
+    "baseRevenuePerConversion": 120,
+    "dialDurationSeconds": 8,
+    "timeOfDayFactors": {
+      "9": 0.9,
+      "10": 1.1,
+      "11": 1.15,
+      "12": 0.85,
+      "13": 0.9,
+      "14": 1.0,
+      "15": 1.1,
+      "16": 1.05,
+      "17": 0.8
+    }
+  },
+  "reputation": {
+    "baseScore": 75,
+    "minScore": 0,
+    "maxScore": 100,
+    "spamTagThreshold": 40,
+    "complaintImpact": -2,
+    "idleRecoveryPerHour": 0.5,
+    "volumeSpikeThreshold": 1.5,
+    "volumeSpikePenalty": -5
+  },
+  "economy": {
+    "leadCostBase": 2.5,
+    "dialerLicenseDaily": {
+      "manual": 0,
+      "power": 15,
+      "progressive": 35,
+      "predictive": 75,
+      "ai_assisted": 150
+    },
+    "numberPoolCostPerNumber": 1.5,
+    "compliancePenaltyBase": 500
+  },
+  "training": {
+    "baseXPPerSession": 10,
+    "sessionDurationMinutes": 30,
+    "sessionCost": 25,
+    "diminishingFactor": 0.85,
+    "maxSkillLevel": 1.0
+  },
+  "upgrades": {
+    "costGrowthRate": 1.5,
+    "maxLevels": 10
+  }
+}

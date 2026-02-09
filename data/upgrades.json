@@ -1,0 +1,392 @@
+{
+    "upgrades": [
+        {
+            "id": "hire_agent",
+            "name": "Hire Agent",
+            "description": "Recruit a new agent to your team.",
+            "category": "hiring",
+            "tier": 1,
+            "baseCost": 150,
+            "costGrowthRate": 1.25,
+            "maxLevel": 50,
+            "effects": [
+                {
+                    "type": "add_agent",
+                    "value": 1
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "recruiting_bonus",
+            "name": "Recruiting Bonus",
+            "description": "Better recruiting attracts higher quality candidates.",
+            "category": "hiring",
+            "tier": 2,
+            "baseCost": 800,
+            "costGrowthRate": 1.6,
+            "maxLevel": 5,
+            "effects": [
+                {
+                    "type": "new_agent_stat_bonus",
+                    "value": 0.05
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "onboarding_program",
+            "name": "Onboarding Program",
+            "description": "Structured onboarding reduces new agent ramp time.",
+            "category": "hiring",
+            "tier": 2,
+            "baseCost": 500,
+            "costGrowthRate": 1.5,
+            "maxLevel": 3,
+            "effects": [
+                {
+                    "type": "onboarding_speed",
+                    "value": 0.25
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "script_training",
+            "name": "Script Training",
+            "description": "Improve agent talk track effectiveness.",
+            "category": "training",
+            "tier": 1,
+            "baseCost": 200,
+            "costGrowthRate": 1.4,
+            "maxLevel": 10,
+            "effects": [
+                {
+                    "type": "global_skill_talktrack",
+                    "value": 0.03
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "compliance_training",
+            "name": "Compliance Training",
+            "description": "Reduce compliance incidents and improve discipline.",
+            "category": "training",
+            "tier": 1,
+            "baseCost": 300,
+            "costGrowthRate": 1.4,
+            "maxLevel": 10,
+            "effects": [
+                {
+                    "type": "global_compliance",
+                    "value": 0.04
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "efficiency_training",
+            "name": "Efficiency Training",
+            "description": "Speed up wrap-up time and call handling.",
+            "category": "training",
+            "tier": 2,
+            "baseCost": 400,
+            "costGrowthRate": 1.45,
+            "maxLevel": 8,
+            "effects": [
+                {
+                    "type": "global_speed_wrapup",
+                    "value": 0.04
+                }
+            ],
+            "prerequisites": [
+                "script_training"
+            ],
+            "repeatable": true
+        },
+        {
+            "id": "coaching_manager",
+            "name": "Coaching Manager",
+            "description": "Hire a dedicated coach to accelerate agent development.",
+            "category": "training",
+            "tier": 3,
+            "baseCost": 2500,
+            "costGrowthRate": 2.0,
+            "maxLevel": 3,
+            "effects": [
+                {
+                    "type": "training_efficiency",
+                    "value": 0.20
+                }
+            ],
+            "prerequisites": [
+                "script_training",
+                "compliance_training"
+            ],
+            "repeatable": true
+        },
+        {
+            "id": "lead_batch_50",
+            "name": "Lead Batch (50)",
+            "description": "Purchase 50 standard leads.",
+            "category": "leads",
+            "tier": 1,
+            "baseCost": 125,
+            "costGrowthRate": 1.0,
+            "maxLevel": 999,
+            "effects": [
+                {
+                    "type": "add_leads",
+                    "value": 50,
+                    "source": "standard_leads"
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "lead_batch_200",
+            "name": "Lead Batch (200)",
+            "description": "Purchase 200 standard leads at bulk discount.",
+            "category": "leads",
+            "tier": 2,
+            "baseCost": 400,
+            "costGrowthRate": 1.0,
+            "maxLevel": 999,
+            "effects": [
+                {
+                    "type": "add_leads",
+                    "value": 200,
+                    "source": "standard_leads"
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "crm_integration",
+            "name": "CRM Integration",
+            "description": "Better lead scoring routes best leads to best agents.",
+            "category": "leads",
+            "tier": 3,
+            "baseCost": 1500,
+            "costGrowthRate": 1.8,
+            "maxLevel": 3,
+            "effects": [
+                {
+                    "type": "lead_routing_efficiency",
+                    "value": 0.05
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "local_presence",
+            "name": "Local Presence",
+            "description": "Display local caller ID to improve answer rates.",
+            "category": "reputation",
+            "tier": 2,
+            "baseCost": 1000,
+            "costGrowthRate": 1.6,
+            "maxLevel": 5,
+            "effects": [
+                {
+                    "type": "answer_rate_bonus",
+                    "value": 0.08
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "number_pool",
+            "name": "Number Pool Expansion",
+            "description": "More numbers to rotate reduces spam flagging.",
+            "category": "reputation",
+            "tier": 2,
+            "baseCost": 600,
+            "costGrowthRate": 1.3,
+            "maxLevel": 10,
+            "effects": [
+                {
+                    "type": "spam_reduction",
+                    "value": 0.05
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "stir_shaken",
+            "name": "STIR/SHAKEN Attestation",
+            "description": "Full attestation improves deliverability and trust.",
+            "category": "reputation",
+            "tier": 3,
+            "baseCost": 3000,
+            "costGrowthRate": 2.0,
+            "maxLevel": 1,
+            "effects": [
+                {
+                    "type": "answer_rate_bonus",
+                    "value": 0.12
+                },
+                {
+                    "type": "spam_reduction",
+                    "value": 0.15
+                }
+            ],
+            "prerequisites": [
+                "local_presence"
+            ],
+            "repeatable": false
+        },
+        {
+            "id": "reputation_monitoring",
+            "name": "Reputation Monitoring",
+            "description": "Track and manage caller ID reputation proactively.",
+            "category": "reputation",
+            "tier": 2,
+            "baseCost": 800,
+            "costGrowthRate": 1.5,
+            "maxLevel": 3,
+            "effects": [
+                {
+                    "type": "reputation_recovery",
+                    "value": 0.25
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "qa_system",
+            "name": "QA System",
+            "description": "Monitor and score calls to identify coaching opportunities.",
+            "category": "analytics",
+            "tier": 2,
+            "baseCost": 1200,
+            "costGrowthRate": 1.6,
+            "maxLevel": 3,
+            "effects": [
+                {
+                    "type": "training_efficiency",
+                    "value": 0.10
+                },
+                {
+                    "type": "global_consistency",
+                    "value": 0.02
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "analytics_dashboard",
+            "name": "Analytics Dashboard",
+            "description": "Real-time insights into call center performance.",
+            "category": "analytics",
+            "tier": 2,
+            "baseCost": 700,
+            "costGrowthRate": 1.5,
+            "maxLevel": 3,
+            "effects": [
+                {
+                    "type": "unlock_metrics",
+                    "value": 1
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "ai_qa",
+            "name": "AI Quality Assurance",
+            "description": "AI-powered call analysis for automatic coaching recommendations.",
+            "category": "analytics",
+            "tier": 4,
+            "baseCost": 5000,
+            "costGrowthRate": 2.0,
+            "maxLevel": 3,
+            "effects": [
+                {
+                    "type": "global_skill_talktrack",
+                    "value": 0.02
+                },
+                {
+                    "type": "global_consistency",
+                    "value": 0.03
+                },
+                {
+                    "type": "aht_reduction",
+                    "value": 0.05
+                }
+            ],
+            "prerequisites": [
+                "qa_system",
+                "analytics_dashboard"
+            ],
+            "repeatable": true
+        },
+        {
+            "id": "compliance_suite",
+            "name": "Compliance Suite",
+            "description": "Automated DNC scrubbing and compliance monitoring.",
+            "category": "compliance",
+            "tier": 2,
+            "baseCost": 1800,
+            "costGrowthRate": 1.7,
+            "maxLevel": 3,
+            "effects": [
+                {
+                    "type": "compliance_risk_reduction",
+                    "value": 0.25
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "break_room",
+            "name": "Break Room Upgrade",
+            "description": "Better rest facilities improve fatigue recovery.",
+            "category": "facilities",
+            "tier": 1,
+            "baseCost": 400,
+            "costGrowthRate": 1.5,
+            "maxLevel": 5,
+            "effects": [
+                {
+                    "type": "fatigue_recovery_bonus",
+                    "value": 0.10
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        },
+        {
+            "id": "ergonomic_workstations",
+            "name": "Ergonomic Workstations",
+            "description": "Reduce fatigue accumulation with better equipment.",
+            "category": "facilities",
+            "tier": 2,
+            "baseCost": 600,
+            "costGrowthRate": 1.5,
+            "maxLevel": 5,
+            "effects": [
+                {
+                    "type": "fatigue_gain_reduction",
+                    "value": 0.08
+                }
+            ],
+            "prerequisites": [],
+            "repeatable": true
+        }
+    ]
+}

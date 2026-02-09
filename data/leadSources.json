@@ -1,0 +1,98 @@
+{
+    "leadSources": [
+        {
+            "id": "aged_data",
+            "name": "Aged Data Lists",
+            "description": "60-90 day old leads. Cheap but low intent.",
+            "tier": 1,
+            "costPerLead": 0.50,
+            "intentMultiplier": 0.6,
+            "freshnessDecayPerDay": 0.02,
+            "complianceRisk": 0.15,
+            "supplyPerDay": 200,
+            "baseAnswerProbability": 0.12,
+            "baseConversionProbability": 0.04,
+            "unlockCost": 0,
+            "prerequisites": []
+        },
+        {
+            "id": "standard_leads",
+            "name": "Standard Leads",
+            "description": "Fresh 7-14 day leads from web forms. Balanced quality and cost.",
+            "tier": 2,
+            "costPerLead": 2.50,
+            "intentMultiplier": 1.0,
+            "freshnessDecayPerDay": 0.01,
+            "complianceRisk": 0.08,
+            "supplyPerDay": 100,
+            "baseAnswerProbability": 0.18,
+            "baseConversionProbability": 0.07,
+            "unlockCost": 0,
+            "prerequisites": []
+        },
+        {
+            "id": "premium_leads",
+            "name": "Premium Leads",
+            "description": "Real-time leads from qualified inquiries. High intent, higher cost.",
+            "tier": 3,
+            "costPerLead": 8.00,
+            "intentMultiplier": 1.5,
+            "freshnessDecayPerDay": 0.005,
+            "complianceRisk": 0.03,
+            "supplyPerDay": 40,
+            "baseAnswerProbability": 0.32,
+            "baseConversionProbability": 0.12,
+            "unlockCost": 1500,
+            "prerequisites": []
+        },
+        {
+            "id": "transfer_leads",
+            "name": "Live Transfers",
+            "description": "Pre-qualified prospects transferred live. Very high intent, premium cost.",
+            "tier": 4,
+            "costPerLead": 35.00,
+            "intentMultiplier": 2.5,
+            "freshnessDecayPerDay": 0,
+            "complianceRisk": 0.02,
+            "supplyPerDay": 15,
+            "baseAnswerProbability": 0.95,
+            "baseConversionProbability": 0.25,
+            "unlockCost": 5000,
+            "prerequisites": [
+                "premium_leads"
+            ]
+        },
+        {
+            "id": "exclusive_leads",
+            "name": "Exclusive Leads",
+            "description": "Custom-generated exclusive leads sold only to you. Maximum quality.",
+            "tier": 5,
+            "costPerLead": 18.00,
+            "intentMultiplier": 2.0,
+            "freshnessDecayPerDay": 0.003,
+            "complianceRisk": 0.01,
+            "supplyPerDay": 25,
+            "baseAnswerProbability": 0.45,
+            "baseConversionProbability": 0.18,
+            "unlockCost": 10000,
+            "prerequisites": [
+                "premium_leads"
+            ]
+        },
+        {
+            "id": "scraped_data",
+            "name": "Web Scraped Data",
+            "description": "Cheap scraped business data. High volume but compliance risk.",
+            "tier": 1,
+            "costPerLead": 0.15,
+            "intentMultiplier": 0.4,
+            "freshnessDecayPerDay": 0.03,
+            "complianceRisk": 0.35,
+            "supplyPerDay": 500,
+            "baseAnswerProbability": 0.10,
+            "baseConversionProbability": 0.025,
+            "unlockCost": 0,
+            "prerequisites": []
+        }
+    ]
+}
