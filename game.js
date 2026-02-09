@@ -481,33 +481,31 @@ const UPGRADES = [
     { id: 'super', name: 'Supervisor', icon: '👔', desc: 'FREE! Auto-wakes sleeping agents', long: 'Hire a floor supervisor who patrols and automatically wakes tired agents. No more manual wake-ups needed! This is FREE to get you started.', cost: 0, cat: 'mgmt', max: 1, fn: spawnSupervisor, pos: { x: 0, z: -6 } },
 
     // ROW 1 (z = -10): ESSENTIALS - Leads, Hiring, Training
-    { id: 'leads_50', name: '50 Leads', icon: '📋', desc: '+50 warm leads (3x contact rate!)', long: 'Warm leads have 17% contact rate vs 5% cold calling! Plus bigger sales ($70-150 vs $40-90). Agents dial without leads but less efficiently.', cost: 100, cat: 'leads', fn: () => G.leads += 50, repeat: true, pos: { x: -8, z: -10 } },
-    { id: 'leads_200', name: '200 Leads', icon: '📦', desc: '+200 warm leads (bulk discount)', long: 'Bulk buy! Warm leads mean 3x better contact rates and 2x conversion vs cold calling. Agents work without leads but cold calls are less profitable.', cost: 350, cat: 'leads', fn: () => G.leads += 200, repeat: true, pos: { x: -4, z: -10 } },
+    { id: 'leads_50', name: '50 Leads', icon: '📋', desc: '+50 warm leads', long: 'Warm leads have 17% contact rate vs 5% cold calling! Plus bigger sales ($70-150 vs $40-90).', cost: 100, cat: 'leads', fn: () => G.leads += 50, repeat: true, pos: { x: -8, z: -10 } },
+    { id: 'leads_200', name: '200 Leads', icon: '📦', desc: '+200 warm leads', long: 'Bulk buy! Warm leads mean 3x better contact rates and 2x conversion vs cold calling.', cost: 350, cat: 'leads', fn: () => G.leads += 200, repeat: true, pos: { x: -4, z: -10 } },
     { id: 'hire', name: 'Hire Agent', icon: '👤', desc: 'Recruit new sales rep', long: 'More agents = more calls = more sales! Each agent costs $40/day in wages but can generate far more revenue.', cost: 200, cat: 'hire', fn: hireAgent, repeat: true, mult: 1.4, pos: { x: 0, z: -10 } },
-    { id: 'script', name: 'Script Training', icon: '📝', desc: '+5% conversion per level', long: 'Train your agents with better sales scripts. Each level adds +5% to conversion rate. Max 5 levels = +25% conversions!', cost: 150, cat: 'train', max: 5, mult: 1.7, pos: { x: 4, z: -10 } },
-    { id: 'local', name: 'Local Presence', icon: '📍', desc: '+8% answer rate', long: 'Display local area codes to prospects. People answer local numbers more! Each level adds +8% answer rate.', cost: 300, cat: 'rep', max: 3, mult: 1.8, pos: { x: 8, z: -10 } },
+    { id: 'script', name: 'Script Training', icon: '📝', desc: '+5% conversion', long: 'Train your agents with better sales scripts. Each level adds +5% to conversion rate.', cost: 150, cat: 'train', max: 5, mult: 1.7, pos: { x: 4, z: -10 } },
+    { id: 'local', name: 'Local Presence', icon: '📍', desc: '+8% answer rate', long: 'Display local area codes to prospects. People answer local numbers more!', cost: 300, cat: 'rep', max: 3, mult: 1.8, pos: { x: 8, z: -10 } },
 
-    // ROW 2 (z = -16): TECH & FACILITIES
-    { id: 'coffee', name: 'Coffee Machine', icon: '☕', desc: 'Slower energy drain', long: 'Keep your agents caffeinated! Coffee reduces energy drain so agents work longer before needing a break.', cost: 300, cat: 'fac', max: 1, fn: spawnCoffeeMachine, pos: { x: -8, z: -16 } },
-    { id: 'ergo', name: 'Ergo Chairs', icon: '🪑', desc: '-20% energy drain', long: 'Comfortable chairs mean happier agents. Each level reduces energy drain by 20%, letting agents work longer sessions.', cost: 400, cat: 'fac', max: 2, mult: 1.6, fn: upgradeChairs, pos: { x: -4, z: -16 } },
-    { id: 'power', name: 'Power Dialer', icon: '⚡', desc: '2x dial speed', long: 'Automatically dials the next lead when a call ends. Doubles your dial speed, meaning twice the calls per hour!', cost: 500, cat: 'tech', max: 1, pos: { x: 0, z: -16 } },
-    { id: 'predict', name: 'Predictive Dialer', icon: '🤖', desc: 'AI-powered dialing', long: 'Advanced AI predicts when agents will be free and pre-dials leads. Massive efficiency boost - +40% more effective!', cost: 1500, cat: 'tech', max: 1, pos: { x: 4, z: -16 } },
-    { id: 'analytics', name: 'Analytics', icon: '📈', desc: 'Better optimization', long: 'Data-driven insights help optimize call times and scripts. Improves overall efficiency and conversion tracking.', cost: 600, cat: 'tech', max: 2, mult: 1.7, pos: { x: 8, z: -16 } },
+    // ROW 2 (z = -15): TECH & FACILITIES
+    { id: 'coffee', name: 'Coffee Machine', icon: '☕', desc: 'Slower energy drain', long: 'Keep your agents caffeinated! Coffee reduces energy drain.', cost: 300, cat: 'fac', max: 1, fn: spawnCoffeeMachine, pos: { x: -8, z: -15 } },
+    { id: 'ergo', name: 'Ergo Chairs', icon: '🪑', desc: '-20% energy drain', long: 'Comfortable chairs mean happier agents. Each level reduces energy drain by 20%.', cost: 400, cat: 'fac', max: 2, mult: 1.6, fn: upgradeChairs, pos: { x: -4, z: -15 } },
+    { id: 'power', name: 'Power Dialer', icon: '⚡', desc: '2x dial speed', long: 'Automatically dials the next lead. Doubles your dial speed!', cost: 500, cat: 'tech', max: 1, pos: { x: 0, z: -15 } },
+    { id: 'predict', name: 'Predictive Dialer', icon: '🤖', desc: 'AI-powered dialing', long: 'AI predicts when agents will be free and pre-dials leads. +40% efficiency!', cost: 1500, cat: 'tech', max: 1, pos: { x: 4, z: -15 } },
+    { id: 'analytics', name: 'Analytics', icon: '📈', desc: 'Better optimization', long: 'Data-driven insights help optimize call times and scripts.', cost: 600, cat: 'tech', max: 2, mult: 1.7, pos: { x: 8, z: -15 } },
 
-
-    // ROW 3 (z = -22): MANAGEMENT & ADVANCED
-    { id: 'qa', name: 'QA Team', icon: '🎧', desc: '+10 reputation', long: 'Quality Assurance monitors calls for compliance. Each level adds +10 reputation and prevents reputation decay overnight.', cost: 800, cat: 'comp', max: 2, mult: 1.8, fn: () => G.reputation = Math.min(100, G.reputation + 10), pos: { x: -8, z: -22 } },
-    { id: 'crm', name: 'CRM System', icon: '💻', desc: '+15% conversion', long: 'Customer Relationship Management tracks prospects and history. Better follow-ups mean more closes! Each level adds +15% conversion.', cost: 1000, cat: 'tech', max: 3, mult: 1.5, pos: { x: -4, z: -22 } },
-    { id: 'break', name: 'Break Room', icon: '🛋️', desc: '+25% energy regen', long: 'A comfortable break room helps agents recover faster. Sleeping agents regain energy 25% faster with each level.', cost: 500, cat: 'fac', max: 2, mult: 1.6, pos: { x: 0, z: -22 } },
-    { id: 'bonus', name: 'Bonus System', icon: '💰', desc: '+10% sale value', long: 'Commission bonuses motivate agents to close bigger deals. Each level adds +10% to every sale value!', cost: 750, cat: 'mgmt', max: 3, mult: 1.7, pos: { x: 4, z: -22 } },
-    { id: 'leads_500', name: '500 Leads', icon: '📊', desc: '+500 premium leads', long: 'Mega pack of hot leads! Premium leads have 20% contact rate and higher conversion potential.', cost: 800, cat: 'leads', fn: () => G.leads += 500, repeat: true, pos: { x: 8, z: -22 } },
+    // ROW 3 (z = -20): MANAGEMENT & COMPLIANCE
+    { id: 'qa', name: 'QA Team', icon: '🎧', desc: '+10 reputation', long: 'Quality Assurance monitors calls. +10 rep and prevents overnight decay.', cost: 800, cat: 'comp', max: 2, mult: 1.8, fn: () => G.reputation = Math.min(100, G.reputation + 10), pos: { x: -6, z: -20 } },
+    { id: 'crm', name: 'CRM System', icon: '💻', desc: '+15% conversion', long: 'Customer Relationship Management tracks prospects. Better follow-ups!', cost: 1000, cat: 'tech', max: 3, mult: 1.5, pos: { x: -2, z: -20 } },
+    { id: 'bonus', name: 'Bonus System', icon: '💰', desc: '+10% sale value', long: 'Commission bonuses motivate agents to close bigger deals.', cost: 750, cat: 'mgmt', max: 3, mult: 1.7, pos: { x: 2, z: -20 } },
+    { id: 'break', name: 'Break Room', icon: '🛋️', desc: '+25% energy regen', long: 'Comfortable break room helps agents recover faster.', cost: 500, cat: 'fac', max: 2, mult: 1.6, pos: { x: 6, z: -20 } },
 
     // ROW 4 (z = -25): PREMIUM UPGRADES
-    { id: 'autodialer', name: 'Auto-Dialer', icon: '🔄', desc: '3x dial speed', long: 'Fully automated dialing system that calls the next lead instantly. Triples your dial speed!', cost: 2500, cat: 'tech', max: 1, pos: { x: -8, z: -25 } },
-    { id: 'vip', name: 'VIP Leads', icon: '⭐', desc: '+100 high-value leads', long: 'VIP leads are pre-qualified and ready to buy. 25% contact rate and 2x sale values!', cost: 600, cat: 'leads', fn: () => G.leads += 100, repeat: true, pos: { x: -4, z: -25 } },
-    { id: 'referral', name: 'Referral Program', icon: '🤝', desc: '+5 free leads/day', long: 'Happy customers refer their friends. Gain 5 free warm leads at the start of each day!', cost: 1200, cat: 'leads', max: 3, mult: 1.8, pos: { x: 0, z: -25 } },
-    { id: 'compliance', name: 'Compliance Suite', icon: '📜', desc: 'Prevent rep loss', long: 'Advanced compliance monitoring ensures all calls meet regulations. Completely prevents reputation decay!', cost: 2000, cat: 'comp', max: 1, pos: { x: 4, z: -25 } },
-    { id: 'wellness', name: 'Wellness Program', icon: '🧘', desc: '-30% energy drain', long: 'Yoga, meditation, and health programs keep agents energized. Stacks with coffee and chairs!', cost: 1500, cat: 'fac', max: 2, mult: 1.5, pos: { x: 8, z: -25 } }
+    { id: 'leads_500', name: '500 Leads', icon: '📊', desc: '+500 premium leads', long: 'Mega pack of hot leads! Premium leads have 20% contact rate.', cost: 800, cat: 'leads', fn: () => G.leads += 500, repeat: true, pos: { x: -8, z: -25 } },
+    { id: 'vip', name: 'VIP Leads', icon: '⭐', desc: '+100 VIP leads', long: 'VIP leads are pre-qualified and ready to buy. 25% contact rate!', cost: 600, cat: 'leads', fn: () => G.leads += 100, repeat: true, pos: { x: -4, z: -25 } },
+    { id: 'autodialer', name: 'Auto-Dialer', icon: '🔄', desc: '3x dial speed', long: 'Fully automated dialing system. Triples your dial speed!', cost: 2500, cat: 'tech', max: 1, pos: { x: 0, z: -25 } },
+    { id: 'referral', name: 'Referral Program', icon: '🤝', desc: '+5 leads/day', long: 'Happy customers refer friends. Gain 5 free leads daily!', cost: 1200, cat: 'leads', max: 3, mult: 1.8, pos: { x: 4, z: -25 } },
+    { id: 'compliance', name: 'Compliance Suite', icon: '📜', desc: 'Prevent rep loss', long: 'Advanced compliance monitoring. Completely prevents reputation decay!', cost: 2000, cat: 'comp', max: 1, pos: { x: 8, z: -25 } }
 ];
 
 const COLORS = { leads: 0xf59e0b, hire: 0x3b82f6, train: 0x22c55e, rep: 0xa855f7, tech: 0x00e5c7, fac: 0xec4899, mgmt: 0x6366f1, comp: 0x8b5cf6 };
@@ -1913,8 +1911,8 @@ document.addEventListener('visibilitychange', () => {
 function createCategorySigns() {
     const signs = [
         { text: '📋 ESSENTIALS', z: -10, color: 0xf59e0b },
-        { text: '⚡ TECH & FACILITIES', z: -16, color: 0x00e5c7 },
-        { text: '🎧 MANAGEMENT', z: -22, color: 0x8b5cf6 },
+        { text: '⚡ TECH & FACILITIES', z: -15, color: 0x00e5c7 },
+        { text: '🎧 MANAGEMENT', z: -20, color: 0x8b5cf6 },
         { text: '⭐ PREMIUM', z: -25, color: 0xffd700 }
     ];
 
