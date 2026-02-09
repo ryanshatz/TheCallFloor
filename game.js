@@ -743,7 +743,7 @@ function webinarLeads() {
 // ==================== UPGRADES ====================
 const UPGRADES = [
     // FRONT CENTER (z=-6): First purchase - FREE
-    { id: 'super', name: 'Supervisor', icon: '👔', desc: 'FREE! Auto-wakes agents', long: 'Hire a floor supervisor who patrols and automatically wakes tired agents. FREE to get you started!', cost: 0, cat: 'mgmt', max: 1, fn: spawnSupervisor, pos: { x: 0, z: -6 } },
+    { id: 'super', name: 'Supervisor', icon: '👔', desc: 'FREE! Auto-wakes agents', long: 'Hire a floor supervisor who patrols and automatically wakes tired agents. FREE to get you started!', cost: 0, cat: 'mgmt', max: 1, fn: spawnSupervisor, pos: { x: 0, z: -3 } },
 
     // ROW 1 (z=-8): LEADS & HIRING — center spread
     { id: 'leads_50', name: '50 Leads', icon: '📋', desc: '+50 warm leads', long: 'Warm leads have 17% contact rate vs 5% cold calling!', cost: 100, cat: 'leads', fn: () => G.leads += 50, repeat: true, pos: { x: -12, z: -8 } },
@@ -898,27 +898,45 @@ function createLights() {
 
 // ==================== ENVIRONMENT ====================
 function createEnvironment() {
-    // Modern office floor - light gray carpet
+    // Modern office floor - dark polished wood
     const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(80, 80),
-        new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.9 })
+        new THREE.PlaneGeometry(90, 90),
+        new THREE.MeshStandardMaterial({ color: 0x1e1e2e, roughness: 0.6, metalness: 0.05 })
     );
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Carpet tiles pattern
-    const tileGeo = new THREE.PlaneGeometry(4, 4);
-    const tileMat1 = new THREE.MeshStandardMaterial({ color: 0x6b7280, roughness: 0.95 });
-    const tileMat2 = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.95 });
+    // Premium herringbone-style floor tiles
+    const tileGeo = new THREE.PlaneGeometry(3.8, 3.8);
+    const tileDark = new THREE.MeshStandardMaterial({ color: 0x2a2a3e, roughness: 0.55, metalness: 0.05 });
+    const tileMid = new THREE.MeshStandardMaterial({ color: 0x32324a, roughness: 0.55, metalness: 0.05 });
+    const tileLight = new THREE.MeshStandardMaterial({ color: 0x3a3a52, roughness: 0.50, metalness: 0.08 });
+    const tileMats = [tileDark, tileMid, tileLight];
     for (let x = -32; x <= 32; x += 4) {
         for (let z = -34; z <= 18; z += 4) {
-            const tile = new THREE.Mesh(tileGeo, (x + z) % 8 === 0 ? tileMat1 : tileMat2);
+            const idx = (Math.abs(x) + Math.abs(z)) % 3;
+            const tile = new THREE.Mesh(tileGeo, tileMats[idx]);
             tile.rotation.x = -Math.PI / 2;
             tile.position.set(x, 0.01, z);
             scene.add(tile);
         }
     }
+
+    // Accent floor strips (walkway markers)
+    const stripMat = new THREE.MeshStandardMaterial({ color: 0x00e5c7, emissive: 0x00e5c7, emissiveIntensity: 0.08, roughness: 0.4 });
+    // Center aisle
+    const centerStrip = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 50), stripMat);
+    centerStrip.rotation.x = -Math.PI / 2;
+    centerStrip.position.set(0, 0.015, -5);
+    scene.add(centerStrip);
+    // Side aisles to facility/management zones
+    [-15, 15].forEach(x => {
+        const sideStrip = new THREE.Mesh(new THREE.PlaneGeometry(20, 0.8), stripMat);
+        sideStrip.rotation.x = -Math.PI / 2;
+        sideStrip.position.set(x, 0.015, -20);
+        scene.add(sideStrip);
+    });
 
     // Ceiling
     const ceiling = new THREE.Mesh(
@@ -1022,10 +1040,10 @@ function createEnvironment() {
     wbFrame.position.set(-15, 6, -27.55);
     scene.add(wbFrame);
 
-    // Office plants
+    // Office plants — placed against walls, away from pads
     const plantMat = new THREE.MeshStandardMaterial({ color: 0x22c55e });
     const potMat = new THREE.MeshStandardMaterial({ color: 0x78350f });
-    [[-25, 20], [25, 20], [-25, -20], [25, -20]].forEach(([x, z]) => {
+    [[-32, 15], [32, 15], [-32, -32], [32, -32], [-32, -10], [32, -10]].forEach(([x, z]) => {
         const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.4, 0.8, 16), potMat);
         pot.position.set(x, 0.4, z);
         pot.castShadow = true;
@@ -1037,24 +1055,24 @@ function createEnvironment() {
         scene.add(plant);
     });
 
-    // Water cooler
+    // Water cooler — far right near entrance, away from pads
     const coolerBody = new THREE.Mesh(
         new THREE.CylinderGeometry(0.35, 0.4, 1.2, 16),
         new THREE.MeshStandardMaterial({ color: 0x60a5fa })
     );
-    coolerBody.position.set(18, 0.6, -15);
+    coolerBody.position.set(30, 0.6, -2);
     scene.add(coolerBody);
 
     const coolerTop = new THREE.Mesh(
         new THREE.CylinderGeometry(0.25, 0.25, 0.6, 16),
         new THREE.MeshPhysicalMaterial({ color: 0xbfdbfe, transparent: true, opacity: 0.6 })
     );
-    coolerTop.position.set(18, 1.5, -15);
+    coolerTop.position.set(30, 1.5, -2);
     scene.add(coolerTop);
 
-    // Ceiling lights (flush panels - not hanging)
-    for (let x = -20; x <= 20; x += 12) {
-        for (let z = -22; z <= 15; z += 10) {
+    // Ceiling lights — extended to cover wider office
+    for (let x = -28; x <= 28; x += 12) {
+        for (let z = -30; z <= 15; z += 10) {
             // Thin recessed light panel
             const lightPanel = new THREE.Mesh(
                 new THREE.PlaneGeometry(4, 1.5),
